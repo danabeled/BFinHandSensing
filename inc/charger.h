@@ -51,14 +51,4 @@ int charger_init(charger_t *pThis);
 /** starts the chargers polling loop **/
 int charger_run(charger_t *pThis);
 
-/** set GPIO bits to output and reintialize timer **/
-int charger_discharge(charger_t *pThis);
-
-/** set GPIO bits to input, start timer, poll until 3 plates
-	are all charged **/
-int charger_charge(charger_t *pThis);
-
-
-
-
  #endif
