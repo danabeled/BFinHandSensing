@@ -49,7 +49,10 @@ int charger_init(template_t *pThis) {
  *
  * @return Zero on success, negative otherwise 
  * */
-int charger_run(charger_t *pThis);
+int charger_run(charger_t *pThis); {
+	charger_discharge(pThis);
+	charger_charge(pThis);
+}
 
 /** set GPIO bits to output and reintialize timer **/
 int charger_discharge(charger_t *pThis){
@@ -59,4 +62,12 @@ int charger_discharge(charger_t *pThis){
 
 /** set GPIO bits to input, start timer, poll until 3 plates
 	are all charged **/
-int charger_charge(charger_t *pThis);
+
+int charger_charge(charger_t *pThis); {
+	/* change GPIO to input */
+	*pPORTGIO_DIR = CHARGER_G_BITS;
+	if(ERROR == timer_start())
+	{
+		return ERROR;
+	}
+}
