@@ -15,8 +15,25 @@
 #include "charger.h"
 #include "timer.h"
 
-/***************** Private Defines *****************************/
+/***************** Private Defines *********************************************/
 #define CHARGER_G_BITS 0x1C
+#define PLATE_X 0x2
+#define PLATE_Y 0x8
+#define PLATE_Z 0x4
+
+ /*****************  Private Method Prototypes *********************************/
+void charger_enable_input()
+{
+	*pPORTGIO_DIR = CHARGER_G_BITS;
+	*pPORTGIO_INEN = CHARGER_G_BITS;
+}
+
+void charger_disable_input()
+{
+	*pPORTGIO_DIR &= ~(CHARGER_G_BITS);
+	*pPORTGIO_INEN &= ~(CHARGER_G_BITS);
+}
+
 
  /*****************  Methods Implementations **********************************/
 
@@ -56,18 +73,55 @@ int charger_run(charger_t *pThis); {
 
 /** set GPIO bits to output and reintialize timer **/
 int charger_discharge(charger_t *pThis){
+	charger_disable_input();
     timer_stop();
-
+    pThis->xCharged = 0;
+    pThis->yCharged = 0;
+    pThis->zCharged = 0;
+    pThis->numPlatesCharged = 0;
 }
 
 /** set GPIO bits to input, start timer, poll until 3 plates
 	are all charged **/
 
 int charger_charge(charger_t *pThis); {
+	while(pThis->newDataFlag=1)
+	{
+		/*do nothing*/
+	}
 	/* change GPIO to input */
-	*pPORTGIO_DIR = CHARGER_G_BITS;
+	charger_enable_input();
+	/* start timer */
 	if(ERROR == timer_start())
 	{
 		return ERROR;
 	}
+
+	while(pThis->numPlatesCharged!=3)
+	{
+
+		if(pThis->xCharged==0 && (*pPORTGIO&PLATE_X==PLATE_X))
+		{
+			if(ERROR == timer_getValue(&(pThis->xTime)))
+				return ERROR; 
+			pThis->numPlatesCharged++;
+			pThis->xCharged=1;
+		}
+		if(pThis->yCharged==0 && (*pPORTGIO&PLATE_Y==PLATE_Y))
+		{
+			if(ERROR == timer_getValue(&(pThis->yTime)))
+				return ERROR; 
+			pThis->numPlatesCharged++;
+			pThis->yCharged=1;
+		}
+		if(pThis->zCharged==0 && (*pPORTGIO&PLATE_Z==PLATE_Z))
+		{
+			if(ERROR == timer_getValue(&(pThis->zTime)))
+				return ERROR; 
+			pThis->numPlatesCharged++;
+			pThis->zCharged=1;
+		}
+	}
+	pThis->newDataFlag=1;
+	return SUCCESSFUL;
 }
