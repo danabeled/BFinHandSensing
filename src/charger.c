@@ -12,7 +12,8 @@
  *
  *******************************************************************************/
 
-#include <charger.h>
+#include "charger.h"
+#include "timer.h"
 
 /***************** Private Defines *****************************/
 #define CHARGER_G_BITS 0x1C
@@ -51,7 +52,10 @@ int charger_init(template_t *pThis) {
 int charger_run(charger_t *pThis);
 
 /** set GPIO bits to output and reintialize timer **/
-int charger_discharge(charger_t *pThis);
+int charger_discharge(charger_t *pThis){
+    timer_stop();
+
+}
 
 /** set GPIO bits to input, start timer, poll until 3 plates
 	are all charged **/
