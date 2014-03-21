@@ -21,11 +21,14 @@
 #include <tll6527_core_timer.h>
 #include <constant.h>
 
-point_t * nextPoint;
-point_t * prevPoint;
-point_t currPoint;
+#define LCD_FRAMEHIGHT 320
+#define LCD_FRAMEWIDTH 240
 
-int ptXMax, ptYMax, ptZMax;
+//point_t * nextPoint;
+//point_t * prevPoint;
+point_t * currPoint;
+
+int xScale=1, yScale=1, zScale=1;
 
 isrDisp_t isrDisp;
 fb_t frameBuffer;
@@ -61,44 +64,46 @@ void queueHandler_init() {
   picotk_DestSet(LCD_FB);
 }
 
+void setXRange(int xNum) {
+  xScale = LCD_FRAMEHEIGHT / xNum;
+}
+
+void setYRange(int yNum) {
+  yScale = LCD_FRAMEWIDTH / yNum;
+}
+void setZRange(int yNum) {
+  zScale = 255/zNum;
+}
+
 void queueHandler_clear() {
   picotk_Init(&isrDisp);
 }
 
 void queueHandler_draw() {
-  while ((currPoint = queue_getPoint()) != ERROR) {
-    
-    picotk_DrawPoint(&queueHandler_ZPointToColor(&currPoint),
-		     queueHandler_XPointToPixel(&currPoint),
-		     queueHandler_YPointToPixel(&currPoint));
-  }
+  picotk_DrawPoint(&queueHandler_ZPointToColor(currPoint),
+		   queueHandler_XPointToPixel(currPoint),
+		   queueHandler_YPointToPixel(currPoint));
   picotk_ShowNB();
   picotk_ReadyToDraw();
+  free(currPoint);
 }
 
-void queueHandler_unreceivePoint() {
+void queueHandler_pushPoint(point_t * pt) {
+  currPoint = pt;
 }
 
 int queueHandler_XPointToPixel(point_t * point) {
-  int x = point.x;
-  int xPix;
-  /* X to Pixel Mapping */
-  
-  return xPix;
+  return (point->x) * xScale;
 }
 
 int queueHandler_YPointToPixel(point_t * point) {
-  int y = point.y;
-  int yPix;
-  /* Y to Pixel Mapping */
-  
-  return yPix;
+  return (point->y) * yScale;
 }
 
 picotk_Color queueHandler_ZPointToColor(point_t * point) {
-  int z = point.z;
   picotk_Color color;
-  /* Z to Color Mapping */
-  
+  color.red = (point->z) * zScale;
+  color.green = (point->z) * zScale;
+  color.blue = (point->z) * zScale;
   return color;
 }

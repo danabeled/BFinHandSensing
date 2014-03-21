@@ -23,6 +23,12 @@ void queueHandler_clear();
 
 void queueHandler_draw();
 
-void queueHandler_unreceivePoint();
+void queueHandler_pushPoint();
+
+void setXRange(int xNum);
+
+void setYRange(int yNum);
+
+void setZRange(int zNum);
 
 #endif
