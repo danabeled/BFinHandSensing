@@ -17,7 +17,7 @@ CFLAGS += -g
 INC_PATH = -I ../inc
 
 # -- Objects 
-OBJS =  main.o \
+OBJS =  main.o
 
 # --- Libraries 	
 LIBS     = -ltll6527mC   
