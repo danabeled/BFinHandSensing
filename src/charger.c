@@ -30,7 +30,7 @@ void charger_disable_input()
 	*pPORTGIO_INEN &= ~(CHARGER_G_BITS);
 }
 
-void charge_enable_input()
+void charger_enable_input()
 {
 	*pPORTGIO_DIR &= ~(CHARGER_G_BITS);
 	*pPORTGIO_INEN |= CHARGER_G_BITS;
@@ -50,7 +50,7 @@ void charger_init(charger_t *pThis) {
 	/* 	initialize Port G's 2-4 bits direction, and clear
 		the bits. Set x, y, z, and number of plates
 		charged to zero.  */
-	*pPORTGIO_DIR &= ~(CHARGER_G_BITS);
+	*pPORTGIO_DIR |= CHARGER_G_BITS;
 	*pPORTGIO_CLEAR |= CHARGER_G_BITS;
 	pThis->xTime = 0;
 	pThis->yTime = 0;
