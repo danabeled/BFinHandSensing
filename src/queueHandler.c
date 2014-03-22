@@ -22,7 +22,7 @@
 #include <tll6527_core_timer.h>
 #include <constant.h>
 
-#define LCD_FRAMEHIGHT 320
+#define LCD_FRAMEHEIGHT 320
 #define LCD_FRAMEWIDTH 240
 
 //point_t * nextPoint;
@@ -72,7 +72,7 @@ void setXRange(int xNum) {
 void setYRange(int yNum) {
   yScale = LCD_FRAMEWIDTH / yNum;
 }
-void setZRange(int yNum) {
+void setZRange(int zNum) {
   zScale = 255/zNum;
 }
 
@@ -81,7 +81,8 @@ void queueHandler_clear() {
 }
 
 void queueHandler_draw() {
-  picotk_DrawPoint(&queueHandler_ZPointToColor(currPoint),
+  picotk_Color tempClr = queueHandler_ZPointToColor(currPoint);
+  picotk_DrawPoint(&tempClr,
 		   queueHandler_XPointToPixel(currPoint),
 		   queueHandler_YPointToPixel(currPoint));
   picotk_ShowNB();
@@ -94,17 +95,17 @@ void queueHandler_pushPoint(point_t * pt) {
 }
 
 int queueHandler_XPointToPixel(point_t * point) {
-  return (point->x) * xScale;
+  return (point->x_pos) * xScale;
 }
 
 int queueHandler_YPointToPixel(point_t * point) {
-  return (point->y) * yScale;
+  return (point->y_pos) * yScale;
 }
 
 picotk_Color queueHandler_ZPointToColor(point_t * point) {
   picotk_Color color;
-  color.red = (point->z) * zScale;
-  color.green = (point->z) * zScale;
-  color.blue = (point->z) * zScale;
+  color.red = (point->z_pos) * zScale;
+  color.green = (point->z_pos) * zScale;
+  color.blue = (point->z_pos) * zScale;
   return color;
 }
