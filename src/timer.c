@@ -21,6 +21,7 @@ const int TIMER_POSITION = 2;
 int timer_init(){
     //disable the timer 2
     timer_stop();
+    *pTIMER2_PERIOD = 10000000; //Set to be arbitrarily large
     *pTIMER2_CONFIG |= EMU_RUN + EXT_CLK;
     return SUCCESSFUL;
 }
