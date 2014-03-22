@@ -21,7 +21,7 @@ const int TIMER_POSITION = 2;
 int timer_init(){
     //disable the timer 2
     timer_stop();
-    TIMER2_CONFIG |= EMU_RUN + EXT_CLK;
+    *pTIMER2_CONFIG |= EMU_RUN + EXT_CLK;
     return SUCCESSFUL;
 }
 int timer_start(){
