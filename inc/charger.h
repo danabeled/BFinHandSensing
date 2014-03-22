@@ -14,8 +14,8 @@
  *
  *******************************************************************************/
   
-#ifndef CHARGER_H_
-#define CHARGER_H_
+#ifndef _CHARGER_H_
+#define _CHARGER_H_
 
 
 
@@ -46,9 +46,9 @@ typedef struct {
  *
  * @return Zero on success, negative otherwise 
  */
-int charger_init(charger_t *pThis);
+void charger_init(charger_t *pThis);
 
 /** starts the chargers polling loop **/
-int charger_run(charger_t *pThis);
+void charger_run(charger_t *pThis);
 
  #endif
