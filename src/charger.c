@@ -14,24 +14,26 @@
 
 #include "charger.h"
 #include "timer.h"
+#include "constant.h"
+#include "cdefBF52x_base.h"
 
 /***************** Private Defines *********************************************/
 #define CHARGER_G_BITS 0x1C
-#define PLATE_X 0x2
-#define PLATE_Y 0x8
-#define PLATE_Z 0x4
+#define PLATE_X 0x4
+#define PLATE_Y 0x16
+#define PLATE_Z 0x8
 
  /*****************  Private Method Prototypes *********************************/
-void charger_enable_input()
-{
-	*pPORTGIO_DIR = CHARGER_G_BITS;
-	*pPORTGIO_INEN = CHARGER_G_BITS;
-}
-
 void charger_disable_input()
 {
-	*pPORTGIO_DIR &= ~(CHARGER_G_BITS);
+	*pPORTGIO_DIR |= CHARGER_G_BITS;
 	*pPORTGIO_INEN &= ~(CHARGER_G_BITS);
+}
+
+void charge_enable_input()
+{
+	*pPORTGIO_DIR &= ~(CHARGER_G_BITS);
+	*pPORTGIO_INEN |= CHARGER_G_BITS;
 }
 
 
@@ -43,7 +45,7 @@ void charger_disable_input()
  *
  * @return Zero on success, negative otherwise 
  */
-int charger_init(template_t *pThis) {
+void charger_init(charger_t *pThis) {
 	
 	/* 	initialize Port G's 2-4 bits direction, and clear
 		the bits. Set x, y, z, and number of plates
@@ -66,7 +68,7 @@ int charger_init(template_t *pThis) {
  *
  * @return Zero on success, negative otherwise 
  * */
-int charger_run(charger_t *pThis); {
+void charger_run(charger_t *pThis) {
 	charger_discharge(pThis);
 	charger_charge(pThis);
 }
@@ -79,13 +81,14 @@ int charger_discharge(charger_t *pThis){
     pThis->yCharged = 0;
     pThis->zCharged = 0;
     pThis->numPlatesCharged = 0;
+    return SUCCESSFUL;
 }
 
 /** set GPIO bits to input, start timer, poll until 3 plates
 	are all charged **/
 
-int charger_charge(charger_t *pThis); {
-	while(pThis->newDataFlag=1)
+int charger_charge(charger_t *pThis) {
+	while(pThis->newDataFlag==1)
 	{
 		/*do nothing*/
 	}

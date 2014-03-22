@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include "timer.h"
 #include "constant.h"
+#include "cdefBF52x_base.h"
 
 int timer_init(){
     //disable the timer 2
