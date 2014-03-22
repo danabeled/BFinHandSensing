@@ -40,7 +40,7 @@ fb_t frameBuffer;
 void queueHandler_init();
 void queueHandler_clear();
 void queueHandler_draw();
-void queueHandler_unreceivePoint();
+void queueHandler_pushPoint();
 int queueHandler_XPointToPixel(point_t * point);
 int queueHandler_YPointToPixel(point_t * point);
 picotk_Color queueHandler_ZPointToColor(point_t *point);
