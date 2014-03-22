@@ -1,12 +1,9 @@
 /******************************************************************************
- *@file: queueHandler.c
+ * @file: queueHandler.c
  *
- *@brief:
+ * @brief:
  *  - The role of this module is to draw points to the LCD
  *  - from the queue
- *
- * Target:   TLL6527v1-0
- * Compiler: VDSP++     Output format: VDSP++ "*.dxe"
  *
  * @author:  Robin Yohannan
  * @created: 3/21/14
@@ -22,17 +19,19 @@
 #include <tll6527_core_timer.h>
 #include <constant.h>
 
+/******************************************************************************
+                                DEFINITIONS
+*******************************************************************************/
 #define LCD_FRAMEHEIGHT 320
 #define LCD_FRAMEWIDTH 240
 
-//point_t * nextPoint;
-//point_t * prevPoint;
+/******************************************************************************
+                                  GLOBALS
+*******************************************************************************/
 point_t * currPoint;
-
-int xScale=1, yScale=1, zScale=1;
-
 isrDisp_t isrDisp;
 fb_t frameBuffer;
+int xScale=1, yScale=1, zScale=1;
 
 /******************************************************************************
                             FUNCTION PROTOTYPES
@@ -49,6 +48,15 @@ picotk_Color queueHandler_ZPointToColor(point_t *point);
                               IMPLEMENTATION
 *******************************************************************************/
 
+/**
+ * @name queueHandler_init()
+ *
+ * Initializes the ISR dispatcher +
+ * the picotk library, and clears the LCD screen
+ *
+ * @param void
+ * @return void
+ */
 void queueHandler_init() {
   /* Commented out blackfin setup code
      because this should be done in the
@@ -69,21 +77,62 @@ void queueHandler_init() {
   picotk_DestSet(LCD_FB);
 }
 
+/**
+ * @name setXRange()
+ *
+ * Sets the X-axis point-to-LCD scale factor
+ *
+ * @param xNum - number of possible x-axis integers
+ * @return void
+ */
 void setXRange(int xNum) {
   xScale = LCD_FRAMEHEIGHT / xNum;
 }
 
+/**
+ * @name setYRange()
+ *
+ * Sets the Y-axis point-to-LCD scale factor
+ *
+ * @param yNum - number of possible y-axis integers
+ * @return void
+ */
 void setYRange(int yNum) {
   yScale = LCD_FRAMEWIDTH / yNum;
 }
+
+/**
+ * @name setZRange()
+ *
+ * Sets the Z-axis point-to-LCD color scale factor
+ *
+ * @param zNum - number of possible z-axis integers
+ * @return void
+ */
 void setZRange(int zNum) {
   zScale = 255/zNum;
 }
 
+/**
+ * @name queueHandler_clear()
+ *
+ * Clears the LCD screen
+ *
+ * @param void
+ * @return void
+ */
 void queueHandler_clear() {
   picotk_Init(&isrDisp);
 }
 
+/**
+ * @name queueHandler_draw()
+ *
+ * Draw internal Point object on LCD
+ *
+ * @param void
+ * @return void
+ */
 void queueHandler_draw() {
   picotk_Color tempClr = queueHandler_ZPointToColor(currPoint);
   picotk_DrawPoint(&tempClr,
@@ -94,18 +143,50 @@ void queueHandler_draw() {
   free(currPoint);
 }
 
+/**
+ * @name queueHandler_pushPoint()
+ *
+ * Update internal Point object ptr
+ *
+ * @param pt - Address to Point object
+ * @return void
+ */
 void queueHandler_pushPoint(point_t * pt) {
   currPoint = pt;
 }
 
+/**
+ * @name queueHandler_XPointToPixel()
+ *
+ * Return LCD pixel row using xScale factor
+ *
+ * @param point - Address to Point object
+ * @return int - LCD pixel row
+ */
 int queueHandler_XPointToPixel(point_t * point) {
   return (point->x_pos) * xScale;
 }
 
+/**
+ * @name queueHandler_YPointToPixel()
+ *
+ * Return LCD pixel column using yScale factor
+ *
+ * @param point - Address to Point object
+ * @return int - LCD pixel column
+ */
 int queueHandler_YPointToPixel(point_t * point) {
   return (point->y_pos) * yScale;
 }
 
+/**
+ * @name queueHandler_ZPointToColor()
+ *
+ * Return LCD pixel color using zScale factor
+ *
+ * @param point - Address to Point object
+ * @return picotk_Color - picotk color struct
+ */
 picotk_Color queueHandler_ZPointToColor(point_t * point) {
   picotk_Color color;
   color.red = (point->z_pos) * zScale;
