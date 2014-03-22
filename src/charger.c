@@ -103,11 +103,6 @@ int charger_charge(charger_t *pThis) {
 
 	while(pThis->numPlatesCharged < 3)
 	{
-		int mill = 10000000;
-		while(mill > 1){
-			asm("nop;");
-			mill--;
-		}
 		if(pThis->xCharged == 0 && (*pPORTGIO >> PLATE_X) % 2)
 		{
 			if(ERROR == timer_getValue(&(pThis->xTime)))
