@@ -35,6 +35,8 @@ int xScale=1, yScale=1, zScale=1;
 
 picotk_Color * pixelFrame[LCD_FRAMEHEIGHT][LCD_FRAMEWIDTH];
 
+queue_t drawPointQueue;
+
 /******************************************************************************
                             FUNCTION PROTOTYPES
 *******************************************************************************/
@@ -42,9 +44,10 @@ void queueHandler_init();
 void queueHandler_clear();
 void queueHandler_draw();
 void queueHandler_pushPoint();
-int queueHandler_XPointToPixel(point_t * point);
-int queueHandler_YPointToPixel(point_t * point);
-picotk_Color queueHandler_ZPointToColor(point_t *point);
+int queueHandler_XPointToPixel(point_t *);
+int queueHandler_YPointToPixel(point_t *);
+picotk_Color queueHandler_ZPointToColor(point_t *);
+int queueHandler_isPointAdded(queue_t *, point_t *);
 
 /******************************************************************************
                               IMPLEMENTATION
@@ -77,6 +80,8 @@ void queueHandler_init() {
   RTC_waitForInit();
 
   picotk_DestSet(LCD_FB);
+
+  queue_init(&drawPointQueue);
 }
 
 /**
@@ -125,13 +130,7 @@ void setZRange(int zNum) {
  */
 void queueHandler_clear() {
   picotk_Init(&isrDisp);
-  int i, j;
-  for (i=0; i<LCD_FRAMEHEIGHT; i++) {
-	  for (j=0; j<LCD_FRAMEWIDTH; j++) {
-		  free(pixelFrame[i][j]);
-		  pixelFrame[i][j] = NULL;
-	  }
-  }
+  queue_clear(&drawPointQueue);
 }
 
 /**
@@ -143,18 +142,16 @@ void queueHandler_clear() {
  * @return void
  */
 void queueHandler_draw() {
-//  picotk_Color tempClr = queueHandler_ZPointToColor(currPoint);
-//  picotk_DrawPoint(&tempClr,
-//		   queueHandler_XPointToPixel(currPoint),
-//		   queueHandler_YPointToPixel(currPoint));
-  int i, j;
-  for (i=0; i<LCD_FRAMEHEIGHT; i++) {
-	  for (j=0; j<LCD_FRAMEWIDTH; j++) {
-		  if (pixelFrame[i][j] != NULL) {
-			  picotk_DrawPoint(pixelFrame[i][j], i, j);
-		  }
-	  }
+  picotk_Color tempClr;
+  point_t * iter = drawPointQueue.firstElement;
+  while (iter != NULL) {
+    tempClr = queueHandler_ZPointToColor(iter);
+    picotk_DrawPoint(&tempClr,
+		     queueHandler_XPointToPixel(iter),
+		     queueHandler_YPointToPixel(iter));
+    iter = iter->nextPoint;
   }
+  
   picotk_ShowNB();
   picotk_ReadyToDraw();
 }
@@ -168,14 +165,10 @@ void queueHandler_draw() {
  * @return void
  */
 void queueHandler_pushPoint(point_t * pt) {
-  if (pixelFrame[(pt->x_pos)*xScale][(pt->y_pos)*yScale] != NULL) {
-	  
-	  pixelFrame[(pt->x_pos)*xScale][(pt->y_pos)*yScale] = (picotk_Color *)malloc(sizeof(picotk_Color));
-	  pixelFrame[(pt->x_pos)*xScale][(pt->y_pos)*yScale]->red = pt->z_pos * zScale;
-	  pixelFrame[(pt->x_pos)*xScale][(pt->y_pos)*yScale]->green = pt->z_pos * zScale;
-	  pixelFrame[(pt->x_pos)*xScale][(pt->y_pos)*yScale]->blue = pt->z_pos * zScale;
-	  
+  if (!queueHandler_isPointAdded(&drawPointQueue, pt)) {
+    queue_addPoint(&drawPointQueue, pt->x_pos, pt->y_pos, pt->z_pos);
   }
+
   free(pt);
 }
 
@@ -217,4 +210,17 @@ picotk_Color queueHandler_ZPointToColor(point_t * point) {
   color.green = (point->z_pos) * zScale;
   color.blue = (point->z_pos) * zScale;
   return color;
+}
+
+int queueHandler_isPointAdded(queue_t * q, point_t * pt) {
+  point_t * itr = q->firstElement;
+  while (itr != NULL) {
+    if (itr->x_pos == pt->x_pos &&
+	itr->y_pos == pt->y_pos &&
+	itr->z_pos == pt->z_pos) {
+      return 1;
+    }
+    itr = itr->nextPoint;
+  }
+  return 0;
 }

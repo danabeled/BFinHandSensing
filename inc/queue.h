@@ -44,6 +44,11 @@ point_t* queue_getPoint(queue_t *);
  @return status
 */
 int queue_print(queue_t *);
+/**
+ @param queue to be cleared
+ @return status
+*/
+int queue_clear(queue_t *);
 
 #endif
 

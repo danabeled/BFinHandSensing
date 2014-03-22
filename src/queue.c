@@ -68,3 +68,17 @@ int queue_print(queue_t *pThis){
 	printf("Queue size is: %d \n", pThis->queueSize);
 	return 1;
 }
+
+int queue_clear(queue_t *pThis) {
+  point_t * itr = pThis->lastElement;
+
+  while (itr != NULL) {
+    free(itr);
+    itr = itr->prevPoint;
+  }
+  
+  pThis->firstElement = NULL;
+  pThis->lastElement = NULL;
+  
+  return queue_init(pThis);
+}
