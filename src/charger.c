@@ -24,16 +24,16 @@
 #define PLATE_Z 0x8
 
  /*****************  Private Method Prototypes *********************************/
-void charger_enable_input()
-{
-	*pPORTGIO_DIR |= CHARGER_G_BITS;
-	*pPORTGIO_INEN |= CHARGER_G_BITS;
-}
-
 void charger_disable_input()
 {
-	*pPORTGIO_DIR &= ~(CHARGER_G_BITS);
+	*pPORTGIO_DIR |= CHARGER_G_BITS;
 	*pPORTGIO_INEN &= ~(CHARGER_G_BITS);
+}
+
+void charge_enable_input()
+{
+	*pPORTGIO_DIR &= ~(CHARGER_G_BITS);
+	*pPORTGIO_INEN |= CHARGER_G_BITS;
 }
 
 
