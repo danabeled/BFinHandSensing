@@ -16,7 +16,7 @@
 #include "constant.h"
 #include "cdefBF52x_base.h"
 
-#define TIMER_POSITION 2;
+const int TIMER_POSITION = 2;
 
 int timer_init(){
     //disable the timer 2
