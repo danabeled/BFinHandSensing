@@ -50,13 +50,17 @@ picotk_Color queueHandler_ZPointToColor(point_t *point);
 *******************************************************************************/
 
 void queueHandler_init() {
-  int ret = 0;
-  ret = blackfin_setup();
+  /* Commented out blackfin setup code
+     because this should be done in the
+     top-level
+  */
+  /* int ret = 0; */
+  /* ret = blackfin_setup(); */
   
-  if (ret) {
-    printf("\r\n Blackfin Setup Failed \r\n");
-    exit(0);
-  }
+  /* if (ret) { */
+  /*   printf("\r\n Blackfin Setup Failed \r\n"); */
+  /*   exit(0); */
+  /* } */
 
   isrDisp_init(&isrDisp);
   picotk_Init(&isrDisp);
