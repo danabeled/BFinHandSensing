@@ -19,7 +19,8 @@ INC_PATH = -I ../inc
 # -- Objects 
 OBJS =  main.o \
         hand_sensing.o \
-        timer.o
+        timer.o \
+        charger.o
 
 # --- Libraries 	
 LIBS     = -ltll6527mC   
