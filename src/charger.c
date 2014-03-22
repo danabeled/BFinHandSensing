@@ -19,15 +19,16 @@
 
 /***************** Private Defines *********************************************/
 #define CHARGER_G_BITS 0x1C
-#define PLATE_X 0x4
-#define PLATE_Y 0x16
-#define PLATE_Z 0x8
+#define PLATE_X 2
+#define PLATE_Y 4
+#define PLATE_Z 3
 
  /*****************  Private Method Prototypes *********************************/
 void charger_disable_input()
 {
 	*pPORTGIO_DIR |= CHARGER_G_BITS;
 	*pPORTGIO_INEN &= ~(CHARGER_G_BITS);
+	*pPORTGIO &= ~(CHARGER_G_BITS);
 }
 
 void charger_enable_input()
@@ -50,8 +51,8 @@ void charger_init(charger_t *pThis) {
 	/* 	initialize Port G's 2-4 bits direction, and clear
 		the bits. Set x, y, z, and number of plates
 		charged to zero.  */
-	*pPORTGIO_DIR |= CHARGER_G_BITS;
-	*pPORTGIO_CLEAR |= CHARGER_G_BITS;
+	charger_discharge(pThis);
+	*pPORTG_FER &= ~(CHARGER_G_BITS);
 	pThis->xTime = 0;
 	pThis->yTime = 0;
 	pThis->zTime = 0;
@@ -100,24 +101,23 @@ int charger_charge(charger_t *pThis) {
 		return ERROR;
 	}
 
-	while(pThis->numPlatesCharged!=3)
+	while(pThis->numPlatesCharged < 3)
 	{
-
-		if(pThis->xCharged==0 && (*pPORTGIO&PLATE_X==PLATE_X))
+		if(pThis->xCharged == 0 && (*pPORTGIO >> PLATE_X) % 2)
 		{
 			if(ERROR == timer_getValue(&(pThis->xTime)))
 				return ERROR; 
 			pThis->numPlatesCharged++;
 			pThis->xCharged=1;
 		}
-		if(pThis->yCharged==0 && (*pPORTGIO&PLATE_Y==PLATE_Y))
+		if(pThis->yCharged==0 && (*pPORTGIO >> PLATE_Y) % 2)
 		{
 			if(ERROR == timer_getValue(&(pThis->yTime)))
 				return ERROR; 
 			pThis->numPlatesCharged++;
 			pThis->yCharged=1;
 		}
-		if(pThis->zCharged==0 && (*pPORTGIO&PLATE_Z==PLATE_Z))
+		if(pThis->zCharged==0 && (*pPORTGIO >> PLATE_Z) % 2)
 		{
 			if(ERROR == timer_getValue(&(pThis->zTime)))
 				return ERROR; 
