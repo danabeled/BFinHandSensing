@@ -51,4 +51,10 @@ void charger_init(charger_t *pThis);
 /** starts the chargers polling loop **/
 void charger_run(charger_t *pThis);
 
+/** enable debug **/
+void charger_debug_enable();
+
+/** disable debug **/
+void charger_debug_disable();
+
  #endif

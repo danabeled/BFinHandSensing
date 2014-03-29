@@ -32,13 +32,13 @@ int timer_init(){
 int timer_start(){
     //start timer counting
     *pTIMER_DISABLE &= ~(1 << TIMER_POSITION);
-	*pTIMER_ENABLE = 1 << TIMER_POSITION;
+	*pTIMER_ENABLE |= 1 << TIMER_POSITION;
 	startCountValue = *pTIMER2_COUNTER;
     return SUCCESSFUL;
 }
 int timer_stop(){
     //stop timer counting
-	*pTIMER_DISABLE = 1 << TIMER_POSITION;
+	*pTIMER_DISABLE |= 1 << TIMER_POSITION;
     *pTIMER_ENABLE &= ~(1 << TIMER_POSITION);
     return SUCCESSFUL;
 }
