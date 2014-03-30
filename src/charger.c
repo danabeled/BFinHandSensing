@@ -59,7 +59,7 @@ void charger_init(charger_t *pThis) {
 	*pPORTF_FER &= ~(CHARGER_G_BITS);
 	*pPORTFIO_DIR &= 0;
 	*pPORTFIO_CLEAR |= 0xFFFF;
-	*pPORTFIO_INEN &= ~(CHARGER_G_BITS);
+	*pPORTFIO_INEN &= 0;
 
 	pThis->xTime = 0;
 	pThis->yTime = 0;

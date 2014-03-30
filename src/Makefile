@@ -20,7 +20,10 @@ INC_PATH = -I ../inc
 OBJS =  main.o \
         hand_sensing.o \
         timer.o \
-        charger.o
+        charger.o \
+        queue_point.o \
+        queueHandler.o \
+        point.o
 
 # --- Libraries 	
 LIBS     = -ltll6527mC   

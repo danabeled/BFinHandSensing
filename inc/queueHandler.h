@@ -52,7 +52,7 @@ void queueHandler_draw();
  * @param pt - Address to Point object
  * @return void
  */
-void queueHandler_pushPoint();
+void queueHandler_pushPoint(point_t*);
 
 /**
  * @name setXRange()

@@ -5,9 +5,10 @@
 	@created: March 21, 2014
 ****************************************************************************/
 
-#include "point.h"
-#include "queue.h"
 #include <stdlib.h>
+#include "point.h"
+#include "queue_point.h"
+#include "constant.h"
 
 /*********************************Method Implementations********************/
 /**
@@ -15,9 +16,8 @@
  @return: status bit
 */
 int STATUS;
-int queue_init(queue_t *pThis){
+int queue_init(queue_point_t *pThis){
 	pThis->queueSize = 0;
-	int SUCCESSFUL = 1;
 	return SUCCESSFUL;
 }
  
@@ -28,30 +28,33 @@ int queue_init(queue_t *pThis){
  @param z: z position
  @return status bit
 */
-int queue_addPoint(queue_t *pThis, int x, int y, int z){
+int queue_addPoint(queue_point_t *pThis, int x, int y, int z){
 	point_t *newPoint = (point_t *) malloc(sizeof(point_t));
 	if(pThis->queueSize == 0){ 
 		//new point becomes the first and last element if the list is empty
 		pThis->firstElement = newPoint; 
 		pThis->lastElement = newPoint;
+		newPoint->nextPoint = NULL;
 		STATUS = point_init(newPoint, x, y, z, NULL, NULL);
-		if(STATUS != 0){ return -1; }
+		if(STATUS != 0){ return ERROR; }
 	}else{
 		STATUS = point_init(newPoint, x, y ,z,pThis->lastElement, NULL);
-		if(STATUS != 0){ return -1; }
+		if(STATUS != 0){ return ERROR; }
 		point_t * temp = pThis->lastElement;
-		newPoint->nextPoint = temp;
-		temp->prevPoint = newPoint;
+		newPoint->prevPoint = pThis->lastElement;
+		pThis->lastElement->nextPoint = newPoint;
 		pThis->lastElement = newPoint;
+		newPoint->nextPoint = NULL;
 	}
 	pThis->queueSize++;
+	return SUCCESSFUL;
 
 }
 /**
  @param pThis: queue instance being modified
  @return: next element
 */
-point_t * queue_getPoint(queue_t *pThis){
+point_t * queue_getPoint(queue_point_t *pThis){
 	if(pThis->queueSize == 0){ return NULL; }
 		point_t* temp  = pThis->firstElement;
 		pThis->firstElement = temp->prevPoint;
@@ -59,7 +62,7 @@ point_t * queue_getPoint(queue_t *pThis){
 	return temp;
 }
 		
-int queue_print(queue_t *pThis){
+int queue_print(queue_point_t *pThis){
 	point_t *itr = pThis->firstElement;
 	while(itr != NULL){
 		printf("x = %u , y = %u, z = %u \n", itr->x_pos, itr->y_pos, itr->z_pos);
@@ -69,9 +72,9 @@ int queue_print(queue_t *pThis){
 	return 1;
 }
 
-int queue_clear(queue_t *pThis) {
+int queue_clear(queue_point_t *pThis) {
   point_t * itr = pThis->lastElement;
-
+  pThis->queueSize = 0;
   while (itr != NULL) {
     free(itr);
     itr = itr->prevPoint;
