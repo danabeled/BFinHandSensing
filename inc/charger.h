@@ -28,13 +28,9 @@
 /** template attributes
  */
 typedef struct {
-	unsigned int xTime; /** time for the x plate to charge */
-	unsigned int yTime; /** time for the y plate to charge */
-	unsigned int zTime; /** time for the z plate to charge */
-	unsigned int numPlatesCharged; /** number of plates curerntly charged **/
-	unsigned short xCharged;
-	unsigned short yCharged;
-	unsigned short zCharged;
+	unsigned long xTime; /** time for the x plate to charge */
+	unsigned long yTime; /** time for the y plate to charge */
+	unsigned long zTime; /** time for the z plate to charge */
 	unsigned short newDataFlag; /** allows readers to know there is new position data **/
 } charger_t;
 
@@ -49,12 +45,9 @@ typedef struct {
 void charger_init(charger_t *pThis);
 
 /** starts the chargers polling loop **/
-void charger_run(charger_t *pThis);
+int charger_run(charger_t *pThis);
 
 /** enable debug **/
 void charger_debug_enable();
-
-/** disable debug **/
-void charger_debug_disable();
 
  #endif

@@ -41,6 +41,6 @@ int timer_stop();
   *
   * @return 0 on success, otherwise ERROR
   */
-int timer_getValue(int* value);
+int timer_getValue(long* value);
 
 #endif

@@ -42,7 +42,7 @@ int timer_stop(){
     *pTIMER_ENABLE &= ~(1 << TIMER_POSITION);
     return SUCCESSFUL;
 }
-int timer_getValue(int* value){
+int timer_getValue(long* value){
     //get timer value
 	if(*pTIMER2_COUNTER < startCountValue){
 		*value = (*pTIMER2_PERIOD - startCountValue) + *pTIMER2_COUNTER;

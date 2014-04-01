@@ -20,26 +20,63 @@
 /***************** Private Defines *********************************************/
 //the following values are for the PORT F IMPLEMENTATION **FOR NOW**
 #define CHARGER_G_BITS 0x700
+
 #define PLATE_X 8
 #define PLATE_Y 9
 #define PLATE_Z 10
 
+#define pPORTIO_INEN *pPORTFIO_INEN
+#define pPORTIO_DIR *pPORTFIO_DIR
+#define pPORTIO_CLEAR *pPORTFIO_CLEAR
+#define pPORT_FER *pPORTF_FER
+#define pPORTIO *pPORTFIO
+
+
 #define ENABLE 1
 #define DISABLE 0
 
+#define refresh 2*1000000
+#define resolution 8
+
 int debug = DISABLE;
  /*****************  Private Method Prototypes *********************************/
-void charger_disable_input()
-{
-	*pPORTFIO_INEN &= ~(CHARGER_G_BITS);
-	*pPORTFIO_DIR |= CHARGER_G_BITS;
-	*pPORTFIO &= ~(CHARGER_G_BITS);
+void setPinOutput(int position){
+	//disable input driver
+	pPORTIO_INEN &= ~(1 << position);
+	//enable output direction
+	pPORTIO_DIR |= 1 << position;
+	//set output voltage to 0
+	pPORTIO_CLEAR |= 1 << position;
 }
-
-void charger_enable_input()
-{
-	*pPORTFIO_DIR &= ~(CHARGER_G_BITS);
-	*pPORTFIO_INEN |= CHARGER_G_BITS;
+void setPinInput(int position){
+	//enable input direction
+	pPORTIO_DIR &= ~(1 << position);
+	//enable input driver
+	pPORTIO_INEN |= 1 << position;
+}
+long charger_time(int position){
+	unsigned long count = 0, total = 0;
+	unsigned long current_time = 0;
+	//start timer counting
+	timer_start();
+	//find the average of the charging time over refresh time
+	while(current_time < refresh){
+		//set the pin output mode
+		setPinOutput(position);
+		//set the pin input mode
+		setPinInput(position);
+		//see how many cycle pass before the pin is 1
+		while((pPORTIO >> position) % 2 == 0){
+			count++;
+		}
+		//number of measure
+		total++;
+		//get pass time
+		timer_getValue(&current_time);
+	}
+	//stop the timer
+	timer_stop();
+	return (count << resolution) / total;
 }
 
 
@@ -56,15 +93,14 @@ void charger_init(charger_t *pThis) {
 	/* 	initialize Port G's 2-4 bits direction, and clear
 		the bits. Set x, y, z, and number of plates
 		charged to zero.  */
-	*pPORTF_FER &= ~(CHARGER_G_BITS);
-	*pPORTFIO_DIR &= 0;
-	*pPORTFIO_CLEAR |= 0xFFFF;
-	*pPORTFIO_INEN &= 0;
+	pPORT_FER &= ~(CHARGER_G_BITS);
+	pPORTIO_DIR &= ~(CHARGER_G_BITS);
+	pPORTIO_CLEAR |= CHARGER_G_BITS;
+	pPORTIO_INEN &= ~(CHARGER_G_BITS);
 
 	pThis->xTime = 0;
 	pThis->yTime = 0;
 	pThis->zTime = 0;
-	pThis->numPlatesCharged = 0;
 	pThis->newDataFlag = 0;
 
 	/* 	call timer's initialization function 		*/
@@ -77,20 +113,8 @@ void charger_init(charger_t *pThis) {
  *
  * @return Zero on success, negative otherwise 
  * */
-void charger_run(charger_t *pThis) {
-	charger_discharge(pThis);
-	charger_charge(pThis);
-}
-
-/** set GPIO bits to output and reintialize timer **/
-int charger_discharge(charger_t *pThis){
-	charger_disable_input();
-    timer_stop();
-    pThis->xCharged = 0;
-    pThis->yCharged = 0;
-    pThis->zCharged = 0;
-    pThis->numPlatesCharged = 0;
-    return SUCCESSFUL;
+int charger_run(charger_t *pThis) {
+	return charger_charge(pThis);
 }
 
 /** set GPIO bits to input, start timer, poll until 3 plates
@@ -110,50 +134,19 @@ const char *byte_to_binary(int x)
 }
 
 int charger_charge(charger_t *pThis) {
-	while(pThis->newDataFlag==1)
-	{
-		/*do nothing*/
-	}
-	/* change GPIO to input */
-	charger_enable_input();
+	if(pThis->newDataFlag==1) {return ERROR;}
 
-	/* start timer */
-	if(ERROR == timer_start())
-	{
-		return ERROR;
-	}
+	if(ERROR == timer_start()){return ERROR;}
 
-	while(pThis->numPlatesCharged < 3)
-	{
-		short val = *pPORTFIO;
-		if(pThis->xCharged == 0 && (val >> PLATE_X) % 2)
-		{
-			if(ERROR == timer_getValue(&(pThis->xTime)))
-				return ERROR;
-			pThis->numPlatesCharged++;
-			pThis->xCharged=1;
-			if(debug == ENABLE)
-				printf("X time:%d\r\n",pThis->xTime);
-		}
-		if(pThis->yCharged==0 && (val >> PLATE_Y) % 2)
-		{
-			if(ERROR == timer_getValue(&(pThis->yTime)))
-				return ERROR;
-			pThis->numPlatesCharged++;
-			pThis->yCharged=1;
-			if(debug == ENABLE)
-				printf("Y time:%d\r\n",pThis->yTime);
-		}
-		if(pThis->zCharged==0 && (val >> PLATE_Z) % 2)
-		{
-			if(ERROR == timer_getValue(&(pThis->zTime)))
-				return ERROR;
-			pThis->numPlatesCharged++;
-			pThis->zCharged=1;
-			if(debug == ENABLE)
-				printf("Z time:%d\r\n",pThis->zTime);
-		}
-	}
+	//measure x plate
+	pThis->xTime = charger_time(PLATE_X);
+
+	//measure y plate
+	pThis->yTime = charger_time(PLATE_Y);
+
+	//measure z plate
+	pThis->zTime = charger_time(PLATE_Z);
+
 	pThis->newDataFlag=1;
 	return SUCCESSFUL;
 }
