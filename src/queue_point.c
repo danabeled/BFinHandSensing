@@ -76,11 +76,11 @@ int queue_clear(queue_point_t *pThis) {
   point_t * itr = pThis->lastElement->prevPoint;
   pThis->queueSize = 0;
   while (itr != NULL) {
-	free(itr->nextPoint);
-	itr->nextPoint = NULL;
+    free(itr->nextPoint);
+    itr->nextPoint = NULL;
     itr =  itr->prevPoint;
   }
-  
+  free(pThis->firstElement);
   pThis->firstElement = NULL;
   pThis->lastElement = NULL;
   
