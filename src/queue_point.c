@@ -65,19 +65,20 @@ point_t * queue_getPoint(queue_point_t *pThis){
 int queue_print(queue_point_t *pThis){
 	point_t *itr = pThis->firstElement;
 	while(itr != NULL){
-		printf("x = %u , y = %u, z = %u \n", itr->x_pos, itr->y_pos, itr->z_pos);
+		printf("x = %u , y = %u, z = %u \r\n", itr->x_pos, itr->y_pos, itr->z_pos);
 		itr = itr->prevPoint;
 	}
-	printf("Queue size is: %d \n", pThis->queueSize);
+	printf("Queue size is: %d \r\n", pThis->queueSize);
 	return 1;
 }
 
 int queue_clear(queue_point_t *pThis) {
-  point_t * itr = pThis->lastElement;
+  point_t * itr = pThis->lastElement->prevPoint;
   pThis->queueSize = 0;
   while (itr != NULL) {
-    free(itr);
-    itr = itr->prevPoint;
+	free(itr->nextPoint);
+	itr->nextPoint = NULL;
+    itr =  itr->prevPoint;
   }
   
   pThis->firstElement = NULL;

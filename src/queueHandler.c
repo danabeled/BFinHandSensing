@@ -30,7 +30,7 @@
 *******************************************************************************/
 point_t * currPoint;
 isrDisp_t isrDisp;
-fb_t frameBuffer;
+fb_t * frameBuffer;
 int xScale=1, yScale=1, zScale=1;
 
 picotk_Color * pixelFrame[LCD_FRAMEHEIGHT][LCD_FRAMEWIDTH];
@@ -122,9 +122,15 @@ void queueHandler_init() {
 	int status = isrDisp_init(&isrDisp);
 	if ( PASS != status ) {
 		printf("Failed to initialize the Interrupt dispatcher\n");
-		exit(0);
+		exit(-1);
 	}
-	fb_Init(&frameBuffer,0,LQ035Q1DH02,RGB565, &isrDisp);
+	// Initialize framebuffer
+	frameBuffer = malloc(sizeof(fb_t));
+	if (frameBuffer == NULL) {
+	  printf("Error: LCD framebuffer failed to initialize \r\n");
+	  exit(-1);
+	}
+	fb_Init(frameBuffer,0,LQ035Q1DH02,RGB565, &isrDisp);
 	coreTimer_init();
 	queue_init(&drawPointQueue);
 }
@@ -174,8 +180,19 @@ void setZRange(int zNum) {
  * @return void
  */
 void queueHandler_clear() {
-  fb_Release(&frameBuffer);
-  fb_Init(&frameBuffer,0,LQ035Q1DH02,RGB565, &isrDisp);
+  fb_Release(frameBuffer);
+  free(frameBuffer);
+  frameBuffer = NULL;
+  frameBuffer = malloc(sizeof(fb_t));
+
+  // Reinitialize the Interrupt Dispatcher
+  int status = isrDisp_init(&isrDisp);
+  if ( PASS != status ) {
+    printf("Failed to initialize the Interrupt dispatcher\n");
+    exit(-1);
+  }
+
+  fb_Init(frameBuffer,0,LQ035Q1DH02,RGB565, &isrDisp);
   queue_clear(&drawPointQueue);
 }
 
@@ -245,21 +262,25 @@ void queueHandler_draw() {
   int i = 0;
   while (iter != NULL) {
 	  tempClr = queueHandler_ZPointToColor(iter);
-	  if(i == 0){
-		  fb_pixelPut(&frameBuffer,tempClr.red,tempClr.green,tempClr.blue,
+	  if(i == 0)
+	  {
+		  fb_pixelPut(frameBuffer,tempClr.red,tempClr.green,tempClr.blue,
 		  			  queueHandler_YPointToPixel(iter),
 		  			  queueHandler_XPointToPixel(iter));
 		  i++;
-	  }else{
-		  line_Draw(&frameBuffer,queueHandler_XPointToPixel(iter->prevPoint),
+	  }
+	  else
+	  {
+		  line_Draw(frameBuffer,queueHandler_XPointToPixel(iter->prevPoint),
 				  queueHandler_YPointToPixel(iter->prevPoint),
 				  queueHandler_XPointToPixel(iter),
 				  queueHandler_YPointToPixel(iter),
 				  tempClr.red,tempClr.green,tempClr.blue);
 	  }
     iter = iter->nextPoint;
-    fb_imageShow(&frameBuffer);
+    
   }
+  fb_imageShow(frameBuffer);
 }
 
 /**
