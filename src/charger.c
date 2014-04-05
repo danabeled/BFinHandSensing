@@ -40,30 +40,18 @@
 #define resolution 8
 
 int debug = DISABLE;
+
+fpgadab_t pFPGAThis;
+isrDisp_t pDispThis;
+
  /*****************  Private Method Prototypes *********************************/
 void setPinOutput(int position){
-	gpio_setOutput_PORTF0();
-	gpio_setOutput_PORTF1();
-	gpio_setOutput_PORTF2();
-	printf("Ports Configured to output \r\n");
-/*	//disable input driver
-	pPORTIO_INEN &= ~(1 << position);
-	//enable output direction
-	pPORTIO_DIR |= 1 << position;
-	//set output voltage to 0
-	pPORTIO_CLEAR |= 1 << position;
-*/
+	*pGPIO_OE |= (1 << position);
+	*pGPIO_OUT |= (1 << position);
 }
 void setPinInput(int position){
-	gpio_setInput_PORTF0();
-	gpio_setInput_PORTF1();
-	gpio_setInput_PORTF2();
-	printf("Ports configured to input \r\n");
-/*	//enable input direction
-	pPORTIO_DIR &= ~(1 << position);
-	//enable input driver
-	pPORTIO_INEN |= 1 << position;
-*/
+	*pGPIO_OE &= ~(1 << position);
+	*pGPIO_IN_INTE |= (1 << position);
 }
 long charger_time(int position){
 	unsigned long count = 0, total = 0;
@@ -114,8 +102,6 @@ void charger_init(charger_t *pThis) {
 	pThis->zTime = 0;
 	pThis->newDataFlag = 0;
 
-	fpgadab_t pFPGAThis;
-	isrDisp_t pDispThis;
 	isrDisp_init(&pDispThis);
 	fpgadab_init(&pFPGAThis, &pDispThis);
 	/* 	call timer's initialization function 		*/
@@ -175,51 +161,4 @@ void charger_debug_enable(){
 void charger_debug_disable(){
 	debug = DISABLE;
 }
-/**
- * Sets PORTF0 to input and enables interrupt
- */
-void gpio_setInput_PORTF0(){
-	  *pGPIO_OE &= ~(1);
-	  *pGPIO_IN_INTE |= 1;
-}
 
-/**
- * Sets PORTF1 to input
- */
-void gpio_setInput_PORTF1(){
-	*pGPIO_OE &= ~(1 << 1);
-	*pGPIO_IN_INTE |= (1 << 1);
-}
-
-/**
- * Sets PORTF2 to input
- */
-void gpio_setInput_PORTF2(){
-	*pGPIO_OE &= ~(1 << 2);
-	*pGPIO_IN_INTE |= (1 << 2);
-
-}
-/**
- * Sets PORTF0 to input and enables interrupt
- */
-void gpio_setOutput_PORTF0(){
-	  *pGPIO_OE |= 1;
-	  *pGPIO_OUT |= 1;
-}
-
-/**
- * Sets PORTF1 to input
- */
-void gpio_setOutput_PORTF1(){
-	*pGPIO_OE |= (1 << 1);
-	*pGPIO_OUT |= (1 << 1);
-}
-
-/**
- * Sets PORTF2 to input
- */
-void gpio_setOutput_PORTF2(){
-	*pGPIO_OE |= (1 << 2);
-	*pGPIO_OUT |= (1 << 2);
-
-}

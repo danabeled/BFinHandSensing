@@ -209,23 +209,11 @@ void DAQ_inHouse_init(){
 int fpgadab_init(fpgadab_t *pThis, isrDisp_t *pIsrDisp)
 {
 
-/*  if(pThis == NULL || pBuffP == NULL || pIsrDisp == NULL) {
+  if(pThis == NULL || pIsrDisp == NULL) {
     printf("[FPGADAB]: Failed init\n");
     return FAIL;
   }
-*/
-/*  pThis-> pBuffP = pBuffP;
-  pThis-> pPending = NULL;
-  queue_init(&pThis->queue, FPGADAB_QUEUE_DEPTH);
 
-  // acquire a new chunk for first triggered ISR
-  if(bufferPool_acquire(pThis->pBuffP, &(pThis->pPending)) == FAIL) {
-    printf("[FPGADAB]: failed to acquire chunk\n");
-  }
-
-  // Reset FIFO
-  DAQ_inHouse_init();
-*/
   // register isr
   isrDisp_registerCallback(pIsrDisp,ISR_PORT_H_INTERRUPT_A , fpgadab_fifoISR, pThis);
 
@@ -237,8 +225,7 @@ int fpgadab_init(fpgadab_t *pThis, isrDisp_t *pIsrDisp)
   *pPORTHIO_POLAR &= ~PH11;         // set 0 for rising edge
   *pPORTHIO_BOTH  &= ~PH11;              // set 0 for not both edges
   *pPORTHIO_MASKA |= PH11;         // map to Interrupt A output of PORTH
-
-  //*pSIC_IMASK0    |= 0x20000000;     // Enable PORTH Int A at the System Int Controller
+  *pSIC_IMASK0    |= 0x20000000;     // Enable PORTH Int A at the System Int Controller
 
   return PASS;
 
