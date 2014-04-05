@@ -28,7 +28,7 @@ int point_init(point_t *pThis, int x, int y, int z,point_t *Next,point_t *Prev){
 	return SUCCESSFUL;
 }
 int point_print(point_t *pThis){
-	printf("Point is: x = %u, y = %u, z = %u \n", pThis->x_pos, pThis->y_pos,
+	printf("Point is: x = %u, y = %u, z = %u \r\n", pThis->x_pos, pThis->y_pos,
 		 pThis->z_pos);
 	return SUCCESSFUL;
 }

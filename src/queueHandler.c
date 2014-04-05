@@ -30,7 +30,7 @@
 *******************************************************************************/
 point_t * currPoint;
 isrDisp_t isrDisp;
-fb_t * frameBuffer;
+fb_t frameBuffer;
 int xScale=1, yScale=1, zScale=1;
 
 picotk_Color * pixelFrame[LCD_FRAMEHEIGHT][LCD_FRAMEWIDTH];
@@ -56,54 +56,6 @@ queue_point_t drawPointQueue;
 /******************************************************************************
                               PRIVATE FUNCTIONS
 *******************************************************************************/
-void line_Draw(fb_t *state,int xcorr1,int ycorr1,int xcorr2,int ycorr2,
-		int red,int green,int blue){
-
-	int x1 = 0, x2 = 0, y1 = 0, y2 = 0;
-	int i, j;
-
-	float lhseq = 1.0;
-	float slope = 1.0;
-	float rhseq = 1.0;
-
-	if (xcorr1 <= xcorr2) {
-		x1 = xcorr1;
-		x2 = xcorr2;
-	}
-	else {
-		x1 = xcorr2;
-		x2 = xcorr1;
-	}
-
-	if (ycorr1 <= ycorr2) {
-		y1 = ycorr1;
-		y2 = ycorr2;
-	}
-	else {
-		y1 = ycorr2;
-		y1 = ycorr1;
-	}
-
-	if (xcorr2 != xcorr1) {
-		slope = ((ycorr2 - ycorr1) * 1.0) / ((xcorr2 - xcorr1) * 1.0);
-	}
-	else {
-		slope = 0.0;
-	}
-	for (i = y1; i <= y2; i++) {
-		for (j = x1; j <= x2; j++) {
-
-			lhseq = (i - ycorr1) * 1.0;
-			rhseq = slope * ((j - xcorr1) * 1.0);
-			if ( lhseq == rhseq) {
-				fb_pixelPut(state,red,green,blue,j,i);
-			}
-			if (x1 == x2) {
-				fb_pixelPut(state,red,green,blue,j,i);
-			}
-		}
-	}
-}
 
 /**
  * @name queueHandler_init()
@@ -124,14 +76,14 @@ void queueHandler_init() {
 		printf("Failed to initialize the Interrupt dispatcher\n");
 		exit(-1);
 	}
-	// Initialize framebuffer
-	frameBuffer = malloc(sizeof(fb_t));
-	if (frameBuffer == NULL) {
-	  printf("Error: LCD framebuffer failed to initialize \r\n");
-	  exit(-1);
-	}
-	fb_Init(frameBuffer,0,LQ035Q1DH02,RGB565, &isrDisp);
+	picotk_Init(&isrDisp);
+	RTC_waitForInit();
+
+	//the foreground buffer
+	picotk_DestSet(LCD_FB);
+
 	coreTimer_init();
+	currPoint = NULL;
 	queue_init(&drawPointQueue);
 }
 
@@ -171,6 +123,15 @@ void setZRange(int zNum) {
   zScale = 255/zNum;
 }
 
+void drawEmptyPoint(){
+	picotk_Color color;
+	color.red = 0;
+	color.green = 0;
+	color.blue = 0;
+	picotk_DrawPoint(&color,0,0);
+	picotk_Show();
+}
+
 /**
  * @name queueHandler_clear()
  *
@@ -180,10 +141,6 @@ void setZRange(int zNum) {
  * @return void
  */
 void queueHandler_clear() {
-  fb_Release(frameBuffer);
-  free(frameBuffer);
-  frameBuffer = NULL;
-  frameBuffer = malloc(sizeof(fb_t));
 
   // Reinitialize the Interrupt Dispatcher
   int status = isrDisp_init(&isrDisp);
@@ -191,9 +148,8 @@ void queueHandler_clear() {
     printf("Failed to initialize the Interrupt dispatcher\n");
     exit(-1);
   }
-
-  fb_Init(frameBuffer,0,LQ035Q1DH02,RGB565, &isrDisp);
   queue_clear(&drawPointQueue);
+  drawEmptyPoint();
 }
 
 /**
@@ -257,30 +213,25 @@ int queueHandler_isPointAdded(queue_point_t * q, point_t * pt) {
  * @return void
  */
 void queueHandler_draw() {
-  picotk_Color tempClr;
   point_t * iter = drawPointQueue.firstElement;
-  int i = 0;
-  while (iter != NULL) {
+  picotk_Color tempClr;
+
+  while(iter != NULL){
 	  tempClr = queueHandler_ZPointToColor(iter);
-	  if(i == 0)
-	  {
-		  fb_pixelPut(frameBuffer,tempClr.red,tempClr.green,tempClr.blue,
-		  			  queueHandler_YPointToPixel(iter),
-		  			  queueHandler_XPointToPixel(iter));
-		  i++;
-	  }
-	  else
-	  {
-		  line_Draw(frameBuffer,queueHandler_XPointToPixel(iter->prevPoint),
+	  if(drawPointQueue.queueSize == 1){
+		  picotk_DrawPoint(&tempClr,
+				  queueHandler_YPointToPixel(iter),
+				  queueHandler_XPointToPixel(iter));
+	  }else{
+		  picotk_DrawLine(&tempClr,
+				  queueHandler_XPointToPixel(iter->prevPoint),
 				  queueHandler_YPointToPixel(iter->prevPoint),
 				  queueHandler_XPointToPixel(iter),
-				  queueHandler_YPointToPixel(iter),
-				  tempClr.red,tempClr.green,tempClr.blue);
+				  queueHandler_YPointToPixel(iter));
 	  }
-    iter = iter->nextPoint;
-    
+	  iter = iter -> nextPoint;
   }
-  fb_imageShow(frameBuffer);
+  picotk_Show();
 }
 
 /**
@@ -293,4 +244,14 @@ void queueHandler_draw() {
  */
 void queueHandler_pushPoint(point_t * pt) {
   queue_addPoint(&drawPointQueue, pt->x_pos, pt->y_pos, pt->z_pos);
+}
+
+void queueHandler_display(){
+	point_t * iter = drawPointQueue.firstElement;
+	int i = 0;
+	while(iter != NULL){
+		point_print(iter);
+		iter = iter -> nextPoint;
+	}
+	printf("---------------\r\n");
 }
