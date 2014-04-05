@@ -72,7 +72,7 @@ int queue_point_print(queue_point_t *pThis){
 	return 1;
 }
 
-int queue__point_clear(queue_point_t *pThis) {
+int queue_point_clear(queue_point_t *pThis) {
   point_t * itr = pThis->lastElement->prevPoint;
   pThis->queueSize = 0;
   while (itr != NULL) {
@@ -84,5 +84,5 @@ int queue__point_clear(queue_point_t *pThis) {
   pThis->firstElement = NULL;
   pThis->lastElement = NULL;
   
-  return queue_init(pThis);
+  return queue_point_init(pThis);
 }
