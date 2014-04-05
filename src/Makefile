@@ -23,7 +23,9 @@ OBJS =  main.o \
         charger.o \
         queue_point.o \
         queueHandler.o \
-        point.o
+        point.o	\
+        ssvep.o	\
+        fpgadab.o
 
 # --- Libraries 	
 LIBS     = -ltll6527mC   
