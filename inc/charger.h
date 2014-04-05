@@ -50,4 +50,29 @@ int charger_run(charger_t *pThis);
 /** enable debug **/
 void charger_debug_enable();
 
+/**
+ * Sets PORTF0 to input and enables interrupt
+ */
+void gpio_setInput_PORTF0();
+/**
+ * Sets PORTF1 to input and enables interrupt
+ */
+void gpio_setInput_PORTF1();
+/**
+ * Sets PORTF2 to input and enables interrupt
+ */
+void gpio_setInput_PORTF2();
+
+/**
+ * Sets PORTF0 to output and sets output to high
+ */
+void gpio_setOutput_PORTF0();
+/**
+ * Sets PORTF1 to output and sets output to high
+ */
+void gpio_setOutput_PORTF1();
+/**
+ * Sets PORTF2 to output and sets output to high
+ */
+void gpio_setOutput_PORTF2();
  #endif

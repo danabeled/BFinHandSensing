@@ -6,6 +6,7 @@
 #include "cdefBF52x_base.h"
 #include "point.h"
 #include "queueHandler.h"
+#include "ssvep.h"
 
 void handSensing(){
 
@@ -21,48 +22,7 @@ void handSensing(){
 	queueHandler_display();
 	coreTimer_delay(0xFFFFFFFF);
 
-//	point_t point2;
-//	point2.x_pos = 100;
-//	point2.y_pos = 150;
-//	point2.z_pos = 100;
-//	queueHandler_pushPoint(&point2);
-//	queueHandler_draw();
-//
-//	queueHandler_display();
-//	coreTimer_delay(0xFFFFFFFF);
-//
-//	point_t point3;
-//	point3.x_pos = 200;
-//	point3.y_pos = 150;
-//	point3.z_pos = 100;
-//	queueHandler_pushPoint(&point3);
-//	queueHandler_draw();
-//
-//	queueHandler_display();
-//	coreTimer_delay(0xFFFFFFFF);
-//
-//	point_t point4;
-//	point4.x_pos = 200;
-//	point4.y_pos = 100;
-//	point4.z_pos = 100;
-//	queueHandler_pushPoint(&point4);
-//	queueHandler_draw();
-//
-//	queueHandler_display();
-//	coreTimer_delay(0xFFFFFFFF);
-//
-//	point_t point5;
-//	point5.x_pos = 100;
-//	point5.y_pos = 100;
-//	point5.z_pos = 100;
-//	queueHandler_pushPoint(&point5);
-//	queueHandler_draw();
-//
-//	queueHandler_display();
-//	coreTimer_delay(0xFFFFFFFF);
-//	queueHandler_clear();
-//	coreTimer_delay(0xFFFFFFFF);
-
+	gpio_init();
     charger_t charger;
     charger_init(&charger);
 

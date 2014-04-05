@@ -16,6 +16,7 @@
 #include "timer.h"
 #include "constant.h"
 #include "cdefBF52x_base.h"
+#include <ssvep.h>
 
 /***************** Private Defines *********************************************/
 //the following values are for the PORT F IMPLEMENTATION **FOR NOW**
@@ -41,18 +42,26 @@
 int debug = DISABLE;
  /*****************  Private Method Prototypes *********************************/
 void setPinOutput(int position){
-	//disable input driver
+	gpio_setOutput_PORTF0();
+	gpio_setOutput_PORTF1();
+	gpio_setOutput_PORTF2();
+/*	//disable input driver
 	pPORTIO_INEN &= ~(1 << position);
 	//enable output direction
 	pPORTIO_DIR |= 1 << position;
 	//set output voltage to 0
 	pPORTIO_CLEAR |= 1 << position;
+*/
 }
 void setPinInput(int position){
-	//enable input direction
+	gpio_setInput_PORTF0();
+	gpio_setInput_PORTF1();
+	gpio_setInput_PORTF2();
+/*	//enable input direction
 	pPORTIO_DIR &= ~(1 << position);
 	//enable input driver
 	pPORTIO_INEN |= 1 << position;
+*/
 }
 long charger_time(int position){
 	unsigned long count = 0, total = 0;
@@ -159,4 +168,52 @@ void charger_debug_enable(){
 /** disable debug **/
 void charger_debug_disable(){
 	debug = DISABLE;
+}
+/**
+ * Sets PORTF0 to input and enables interrupt
+ */
+void gpio_setInput_PORTF0(){
+	  *pGPIO_OE &= ~(1);
+	  *pGPIO_IN_INTE |= 1;
+}
+
+/**
+ * Sets PORTF1 to input
+ */
+void gpio_setInput_PORTF1(){
+	*pGPIO_OE &= ~(1 << 1);
+	*pGPIO_IN_INTE |= (1 << 1);
+}
+
+/**
+ * Sets PORTF2 to input
+ */
+void gpio_setInput_PORTF2(){
+	*pGPIO_OE &= ~(1 << 2);
+	*pGPIO_IN_INTE |= (1 << 2);
+
+}
+/**
+ * Sets PORTF0 to input and enables interrupt
+ */
+void gpio_setOutput_PORTF0(){
+	  *pGPIO_OE |= 1;
+	  *pGPIO_OUT |= 1;
+}
+
+/**
+ * Sets PORTF1 to input
+ */
+void gpio_setOutput_PORTF1(){
+	*pGPIO_OE |= (1 << 1);
+	*pGPIO_OUT |= (1 << 1);
+}
+
+/**
+ * Sets PORTF2 to input
+ */
+void gpio_setOutput_PORTF2(){
+	*pGPIO_OE |= (1 << 2);
+	*pGPIO_OUT |= (1 << 2);
+
 }
