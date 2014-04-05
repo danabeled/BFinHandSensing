@@ -24,7 +24,7 @@ typedef struct {
  @param queue instance to be initilized
  @return status bit
 */
-int queue_init(queue_point_t *);
+int queue_point_init(queue_point_t *);
 /**
  @param queue_t: queue instance being added to
  @param x: x position
@@ -32,22 +32,22 @@ int queue_init(queue_point_t *);
  @param z: z position
  @retun status
 */
-int queue_addPoint(queue_point_t *,int, int, int);
+int queue_point_addPoint(queue_point_t *,int, int, int);
 /**
  @param queue_t queue being referenced
  @return the next element in the queue, returns NULL if the queue is empty
 */
-point_t* queue_getPoint(queue_point_t *);
+point_t* queue_point_getPoint(queue_point_t *);
 /**
  @param queue to be printed
  @return status
 */
-int queue_print(queue_point_t *);
+int queue_point_print(queue_point_t *);
 /**
  @param queue to be cleared
  @return status
 */
-int queue_clear(queue_point_t *);
+int queue_point_clear(queue_point_t *);
 
 #endif
 

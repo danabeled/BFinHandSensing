@@ -84,7 +84,7 @@ void queueHandler_init() {
 
 	coreTimer_init();
 	currPoint = NULL;
-	queue_init(&drawPointQueue);
+	queue_point_init(&drawPointQueue);
 }
 
 /**
@@ -148,7 +148,7 @@ void queueHandler_clear() {
     printf("Failed to initialize the Interrupt dispatcher\n");
     exit(-1);
   }
-  queue_clear(&drawPointQueue);
+  queue_point_clear(&drawPointQueue);
   drawEmptyPoint();
 }
 
@@ -243,7 +243,7 @@ void queueHandler_draw() {
  * @return void
  */
 void queueHandler_pushPoint(point_t * pt) {
-  queue_addPoint(&drawPointQueue, pt->x_pos, pt->y_pos, pt->z_pos);
+  queue_point_addPoint(&drawPointQueue, pt->x_pos, pt->y_pos, pt->z_pos);
 }
 
 void queueHandler_display(){

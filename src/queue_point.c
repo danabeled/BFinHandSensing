@@ -16,7 +16,7 @@
  @return: status bit
 */
 int STATUS;
-int queue_init(queue_point_t *pThis){
+int queue_point_init(queue_point_t *pThis){
 	pThis->queueSize = 0;
 	return SUCCESSFUL;
 }
@@ -28,7 +28,7 @@ int queue_init(queue_point_t *pThis){
  @param z: z position
  @return status bit
 */
-int queue_addPoint(queue_point_t *pThis, int x, int y, int z){
+int queue_point_addPoint(queue_point_t *pThis, int x, int y, int z){
 	point_t *newPoint = (point_t *) malloc(sizeof(point_t));
 	if(pThis->queueSize == 0){ 
 		//new point becomes the first and last element if the list is empty
@@ -54,7 +54,7 @@ int queue_addPoint(queue_point_t *pThis, int x, int y, int z){
  @param pThis: queue instance being modified
  @return: next element
 */
-point_t * queue_getPoint(queue_point_t *pThis){
+point_t * queue_point_getPoint(queue_point_t *pThis){
 	if(pThis->queueSize == 0){ return NULL; }
 		point_t* temp  = pThis->firstElement;
 		pThis->firstElement = temp->prevPoint;
@@ -62,7 +62,7 @@ point_t * queue_getPoint(queue_point_t *pThis){
 	return temp;
 }
 		
-int queue_print(queue_point_t *pThis){
+int queue_point_print(queue_point_t *pThis){
 	point_t *itr = pThis->firstElement;
 	while(itr != NULL){
 		printf("x = %u , y = %u, z = %u \r\n", itr->x_pos, itr->y_pos, itr->z_pos);
@@ -72,7 +72,7 @@ int queue_print(queue_point_t *pThis){
 	return 1;
 }
 
-int queue_clear(queue_point_t *pThis) {
+int queue__point_clear(queue_point_t *pThis) {
   point_t * itr = pThis->lastElement->prevPoint;
   pThis->queueSize = 0;
   while (itr != NULL) {
