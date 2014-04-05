@@ -4,6 +4,7 @@
 #include "queue.h"
 #include "bufferPool.h"
 #include "isrDisp.h"
+#include "charger.h"
 
 typedef struct {
   queue_t queue; /* queue for received buffers */
@@ -11,7 +12,7 @@ typedef struct {
   bufferPool_t *pBuffP; /* pointer to buffer pool */
 } fpgadab_t;
 
-int fpgadab_init(fpgadab_t *pThis, isrDisp_t *pIsrDisp);
+int fpgadab_init(charger_t *pThis, isrDisp_t *pIsrDisp);
 int fpgadab_start(fpgadab_t *pThis);
 void fpgadab_fifoISRr(void *pThisArgs);
 int fpgadab_getNbNc(fpgadab_t *pThis, chunk_t **ppChunk);

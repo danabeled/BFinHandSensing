@@ -22,9 +22,9 @@
 //the following values are for the PORT F IMPLEMENTATION **FOR NOW**
 #define CHARGER_G_BITS 0x700
 
-#define PLATE_X 8
-#define PLATE_Y 9
-#define PLATE_Z 10
+#define PLATE_X 0
+#define PLATE_Y 1
+#define PLATE_Z 2
 
 #define pPORTIO_INEN *pPORTFIO_INEN
 #define pPORTIO_DIR *pPORTFIO_DIR
@@ -41,19 +41,19 @@
 
 int debug = DISABLE;
 
-fpgadab_t pFPGAThis;
 isrDisp_t pDispThis;
 
  /*****************  Private Method Prototypes *********************************/
 void setPinOutput(int position){
+	*pGPIO_IN_INTE &= ~(1 << position);
 	*pGPIO_OE |= (1 << position);
-	*pGPIO_OUT |= (1 << position);
+	*pGPIO_OUT &= ~(1 << position);
 }
 void setPinInput(int position){
 	*pGPIO_OE &= ~(1 << position);
 	*pGPIO_IN_INTE |= (1 << position);
 }
-long charger_time(int position){
+long charger_time(int position, charger_t* charger){
 	unsigned long count = 0, total = 0;
 	unsigned long current_time = 0;
 	//start timer counting
@@ -62,10 +62,11 @@ long charger_time(int position){
 	while(current_time < refresh){
 		//set the pin output mode
 		setPinOutput(position);
+		charger->newDataFlag = 0;
 		//set the pin input mode
 		setPinInput(position);
 		//see how many cycle pass before the pin is 1
-		while((pPORTIO >> position) % 2 == 0){
+		while(charger->newDataFlag != 1){
 			count++;
 		}
 		//number of measure
@@ -92,20 +93,26 @@ void charger_init(charger_t *pThis) {
 	/* 	initialize Port G's 2-4 bits direction, and clear
 		the bits. Set x, y, z, and number of plates
 		charged to zero.  */
-	pPORT_FER &= ~(CHARGER_G_BITS);
-	pPORTIO_DIR &= ~(CHARGER_G_BITS);
-	pPORTIO_CLEAR |= CHARGER_G_BITS;
-	pPORTIO_INEN &= ~(CHARGER_G_BITS);
+
+	int ret = isrDisp_init(&pDispThis);
+	if(0 != ret){
+		printf("isrdisp init failed.\r\n");
+		return;
+	}
+	ret = fpgadab_init(pThis, &pDispThis);
+	if(0 != ret){
+		printf("fpga init failed. \r\n");
+		return;
+	}
+	/* 	call timer's initialization function 		*/
 
 	pThis->xTime = 0;
 	pThis->yTime = 0;
 	pThis->zTime = 0;
 	pThis->newDataFlag = 0;
 
-	isrDisp_init(&pDispThis);
-	fpgadab_init(&pFPGAThis, &pDispThis);
-	/* 	call timer's initialization function 		*/
 	timer_init();
+	printf("Charger init completed\r\n");
 }
 
 /** Starts the chargers polling loop 
@@ -135,20 +142,18 @@ const char *byte_to_binary(int x)
 }
 
 int charger_charge(charger_t *pThis) {
-	if(pThis->newDataFlag==1) {return ERROR;}
 
 	if(ERROR == timer_start()){return ERROR;}
 
 	//measure x plate
-	pThis->xTime = charger_time(PLATE_X);
+	pThis->xTime = charger_time(PLATE_X, pThis);
 
 	//measure y plate
-	pThis->yTime = charger_time(PLATE_Y);
+	pThis->yTime = charger_time(PLATE_Y, pThis);
 
 	//measure z plate
-	pThis->zTime = charger_time(PLATE_Z);
+	pThis->zTime = charger_time(PLATE_Z, pThis);
 
-	pThis->newDataFlag=1;
 	return SUCCESSFUL;
 }
 

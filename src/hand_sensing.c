@@ -32,9 +32,5 @@ void handSensing(){
     		continue;
     	}
         printf("%d %d %d\r\n", charger.xTime, charger.yTime, charger.zTime);
-        charger.newDataFlag = 0;
-//        queueHandler_draw();
-    	//printf("hello\r\n");
-    	asm("idle;");
     }
 }

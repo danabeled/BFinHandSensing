@@ -129,11 +129,9 @@ void ssvep_init(){
  * Function, to initialize GPIO
  */
 void gpio_init(){
-
-    *pGPIO_EN = 0xff;
-    *pGPIO_OE = 0xf0;
-    *pGPIO_IN_INTE = 0x0f;
-
+    *pGPIO_EN = 0xff;//enable as GPIO
+    *pGPIO_OE = 0xf0;//configure i/o
+    *pGPIO_IN_INTE = 0x0f;//interrupt enable
     *pGPIO_OUT = 0xf0;     // '1100'
 }
 

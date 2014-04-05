@@ -32,6 +32,7 @@
 #include "bufferPool.h"
 #include "chunk.h"
 #include "ssvep.h"
+#include "charger.h"
 /******************** Global Data Instantiation***********************/
 /**
  * @param count		  counts the number of times it enters into the ISR
@@ -70,30 +71,25 @@ static unsigned short INT = 0;
  *
  * @return void
  */
+
 void fpgadab_fifoISR(void *pThisArgs) {
 
-    fpgadab_t *pThis = (fpgadab_t *) pThisArgs;
     unsigned short isrSource = 0;
 
     pressed++; // debug counter for counting how often button was pressed
 
-    unsigned short j;
-    unsigned short status = 0;
-
-    if(pThis == NULL) {
-      printf("[FPGADAB]: failed to get (NULL struct.\n");
-    }
-
     // check the isr source in PIC.
     isrSource = *pEXINTPEND;
     // TODO: your functionality.
-
+    printf("%d\r\n", isrSource);
 
     // clear the pending in PIC.
     *pEXINTPEND = isrSource; // Clear the pending reg in FPGA
     INT              = *pPORTHIO & PH11;   // read current state
 	*pPORTHIO_CLEAR     = INT;      // clear all inputs -> clear interrupt
 
+	charger_t * charger = (charger_t *) pThisArgs;
+	charger->newDataFlag = 1;
 //	ssvep_isr();
 
     asm("nop;");                       // add two nop/ssync cylces to ensure int clr arrives
@@ -102,101 +98,6 @@ void fpgadab_fifoISR(void *pThisArgs) {
     asm("ssync;");
 }
 
-
-
-/**
- * set the sampling frequency and counter for interval between CONVST and nCS
- * so that the FPGA ADC_signal_gen module can generate correct sclk, nCS for ADC
- * check Table 9 in AD7606 manual for tradeoff between oversampling rate and maximum throughput
- *
- * Tcycle = 1/fsample
- * Tcycle = Tconvst + Tconv + Tcs
- * Tconvst = 30ns; Tconv = 10ns*convCnt; Tcs = 128*Tsclk;
- * Tsclk maximum 20MHz
- *
- * time unit: ns
- *
- * Parameters: sampling frequency below 200ksps; oversampling rate in [0,2,4,8,16,32,64]
- *
- * @return void;
- */
-int setSampleRate(unsigned int fsample, unsigned int os){
-	// time unit: ns
-	unsigned int Tcycle = 0;//    // test len
-	unsigned int Tconvst = 30;
-	unsigned int Tconv = os * CONVRATIO;
-	unsigned int Tcs = 0;
-	unsigned int sclkCnt = 0;
-	unsigned short convCnt = 0;
-
-	Tcycle = 1000000000/fsample;
-	// Tcycle = Tconvst + Tbusy + Tcs
-	Tcs = (Tcycle - Tconvst - Tconv);
-	// Tcs = 128*Tsclk; fsclk = 100MHz / (2*sclkCnt)
-	sclkCnt = Tcs/128/10/2;
-	// Tconv = 10ns*convCnt
-	convCnt = Tconv / 10;
-
-	// Vdrive = 5V; Maximum fsclk = 20MHz = 100MHz / (2*sclkCnt)
-	if (sclkCnt > 2 && sclkCnt < 65536){
-		*pADCCONG = convCnt;	// conversion period = T(system clk) * convCnt
-		*pSCLKCONG = (unsigned short)sclkCnt;
-//        *pADCCONG = 38400;		// FSAMPLE = 512
-//        *pSCLKCONG = 612;
-		return PASS;
-	} else {
-		printf("[FPGADAB]: fsclk fails to exceed 20MHz\n");
-		return FAIL;
-	}
-	asm("nop;");
-	asm("ssync;");
-	return 0;
-}
-
-/** 
- * FPGA reset routine. Setup setup sclk cycle, select whether go through filter, and mask all the 
- * interrupt at the beginning. Then reset the FIFO space and setup the FIFO size.
- *
- * Parameters:
- *
- * @return void
- */
-void DAQ_inHouse_init(){
-  /* Initialization: Registers in FPGA
-     -- FIFOStatus	: [1, 255]
-     -- pFIFOCONG	: setup FIFO size;
-     -- pSCLKCONG	: setup sclk frequency;
-     -- pExIntMask 	: disable(mask) interrupt;
-     -- pFIRSEL		: filter selection
-  */
-
-//  *pFIRSEL	= FIREN; // filter plug in
-  *pEXINTMASK = 0x00FF; // mask all interrupt
-  coreTimer_delay(100);
-  *pFIFORST  = FIFORST; //Reset FIFO in FPGA
-
-  setSampleRate(FSAMPLE,OS64);
-
-
-  *pFIFO_FULL_THR = FIFOSIZE; // Setup FIFO configuration
-  *pEXINTEDGE = 0x00FF; // set 1 for edge sensitive
-  *pEXINTPOL  = 0x00FF; // High level
-
-  *pEXINTPEND = 0x00FF;
-  *pEXINTMASK = 0x00F0; //Enable the interrupt
-
-  gpio_init();
-  ssvep_init();
-
-  *pADC_START = 0;
-
-  asm("nop;");
-  asm("ssync;");
-
-}
-
-
- 
 /** 
  *
  * Initialization of PORTFIO. This PORT is used as GPIO.
@@ -206,7 +107,7 @@ void DAQ_inHouse_init(){
  *
  * @return void
  */
-int fpgadab_init(fpgadab_t *pThis, isrDisp_t *pIsrDisp)
+int fpgadab_init(charger_t *pThis, isrDisp_t *pIsrDisp)
 {
 
   if(pThis == NULL || pIsrDisp == NULL) {
@@ -215,7 +116,7 @@ int fpgadab_init(fpgadab_t *pThis, isrDisp_t *pIsrDisp)
   }
 
   // register isr
-  isrDisp_registerCallback(pIsrDisp,ISR_PORT_H_INTERRUPT_A , fpgadab_fifoISR, pThis);
+  isrDisp_registerCallback(pIsrDisp, ISR_PORT_H_INTERRUPT_A, fpgadab_fifoISR, pThis);
 
   *pPORTH_FER     &= ~PH11;              // set 0 select GPIO functionality for PH11
   *pPORTHIO_DIR   &= ~PH11;    // set 0 for input PH11
@@ -229,15 +130,5 @@ int fpgadab_init(fpgadab_t *pThis, isrDisp_t *pIsrDisp)
 
   return PASS;
 
-}
-
-int fpgadab_getNbNc(fpgadab_t *pThis, chunk_t **ppChunk) {
-  // check if queue is empty
-  if(queue_is_empty(&pThis->queue)) {
-    return FAIL;
-  } else {
-    queue_get(&pThis->queue, (void**)ppChunk);
-    return PASS;
-  }
 }
 
