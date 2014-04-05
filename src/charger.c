@@ -17,7 +17,7 @@
 #include "constant.h"
 #include "cdefBF52x_base.h"
 #include <ssvep.h>
-
+#include "fpgadab.h"
 /***************** Private Defines *********************************************/
 //the following values are for the PORT F IMPLEMENTATION **FOR NOW**
 #define CHARGER_G_BITS 0x700
@@ -45,6 +45,7 @@ void setPinOutput(int position){
 	gpio_setOutput_PORTF0();
 	gpio_setOutput_PORTF1();
 	gpio_setOutput_PORTF2();
+	printf("Ports Configured to output \r\n");
 /*	//disable input driver
 	pPORTIO_INEN &= ~(1 << position);
 	//enable output direction
@@ -57,6 +58,7 @@ void setPinInput(int position){
 	gpio_setInput_PORTF0();
 	gpio_setInput_PORTF1();
 	gpio_setInput_PORTF2();
+	printf("Ports configured to input \r\n");
 /*	//enable input direction
 	pPORTIO_DIR &= ~(1 << position);
 	//enable input driver
@@ -112,6 +114,10 @@ void charger_init(charger_t *pThis) {
 	pThis->zTime = 0;
 	pThis->newDataFlag = 0;
 
+	fpgadab_t pFPGAThis;
+	isrDisp_t pDispThis;
+	isrDisp_init(&pDispThis);
+	fpgadab_init(&pFPGAThis, &pDispThis);
 	/* 	call timer's initialization function 		*/
 	timer_init();
 }
