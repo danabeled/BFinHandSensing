@@ -12,43 +12,31 @@
  *
  ******************************************************************************/
 #include <stdio.h>
-#include "timer.h"
+#include <sys/time.h>
+#include <cycle_count.h> // make sure to include these headers
+#include <tll6527_core_timer.h>
 #include "constant.h"
 #include "cdefBF52x_base.h"
 
-const int TIMER_POSITION = 2;
-long startCountValue = 0;
+#define DO_CYCLE_COUNTS
+
+struct timeval time_begin, time_end;
 
 int timer_init(){
-    //disable the timer
-	*pPORTG_FER |= PG5;
-	*pTIMER_STATUS = TIMIL1 | TOVF_ERR1 | TRUN1;
-    timer_stop();
-    *pTIMER2_PERIOD = 0xFFFFFFF; //Set to be arbitrarily large
-    *pTIMER2_CONFIG = PWM_OUT| PULSE_HI | PERIOD_CNT;
-    *pTIMER2_WIDTH = 0x249F0;
+	RTC_waitForInit();
     return SUCCESSFUL;
 }
 int timer_start(){
-    //start timer counting
-    *pTIMER_DISABLE &= ~(1 << TIMER_POSITION);
-	*pTIMER_ENABLE |= 1 << TIMER_POSITION;
-	startCountValue = *pTIMER2_COUNTER;
+	gettimeofday(&time_begin, NULL);
     return SUCCESSFUL;
 }
 int timer_stop(){
-    //stop timer counting
-	*pTIMER_DISABLE |= 1 << TIMER_POSITION;
-    *pTIMER_ENABLE &= ~(1 << TIMER_POSITION);
-    return SUCCESSFUL;
+	return SUCCESSFUL;
 }
 int timer_getValue(long* value){
     //get timer value
-	if(*pTIMER2_COUNTER < startCountValue){
-		*value = (*pTIMER2_PERIOD - startCountValue) + *pTIMER2_COUNTER;
-	}else{
-		*value = *pTIMER2_COUNTER - startCountValue;
-	}
+	gettimeofday(&time_end, NULL);
+	*value = (int)time_end.tv_usec - (int)time_begin.tv_usec;
     return SUCCESSFUL;
 }
 
