@@ -11,7 +11,7 @@ typedef struct {
   bufferPool_t *pBuffP; /* pointer to buffer pool */
 } fpgadab_t;
 
-int fpgadab_init(fpgadab_t *pThis, bufferPool_t *pBuffP, isrDisp_t *pIsrDisp);
+int fpgadab_init(fpgadab_t *pThis, isrDisp_t *pIsrDisp);
 int fpgadab_start(fpgadab_t *pThis);
 void fpgadab_fifoISRr(void *pThisArgs);
 int fpgadab_getNbNc(fpgadab_t *pThis, chunk_t **ppChunk);

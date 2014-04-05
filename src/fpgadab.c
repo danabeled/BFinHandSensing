@@ -32,7 +32,6 @@
 #include "bufferPool.h"
 #include "chunk.h"
 #include "ssvep.h"
-
 /******************** Global Data Instantiation***********************/
 /**
  * @param count		  counts the number of times it enters into the ISR
@@ -207,15 +206,15 @@ void DAQ_inHouse_init(){
  *
  * @return void
  */
-int fpgadab_init(fpgadab_t *pThis, bufferPool_t *pBuffP, isrDisp_t *pIsrDisp)
+int fpgadab_init(fpgadab_t *pThis, isrDisp_t *pIsrDisp)
 {
 
-  if(pThis == NULL || pBuffP == NULL || pIsrDisp == NULL) {
+/*  if(pThis == NULL || pBuffP == NULL || pIsrDisp == NULL) {
     printf("[FPGADAB]: Failed init\n");
     return FAIL;
   }
-
-  pThis-> pBuffP = pBuffP;
+*/
+/*  pThis-> pBuffP = pBuffP;
   pThis-> pPending = NULL;
   queue_init(&pThis->queue, FPGADAB_QUEUE_DEPTH);
 
@@ -226,7 +225,7 @@ int fpgadab_init(fpgadab_t *pThis, bufferPool_t *pBuffP, isrDisp_t *pIsrDisp)
 
   // Reset FIFO
   DAQ_inHouse_init();
-
+*/
   // register isr
   isrDisp_registerCallback(pIsrDisp,ISR_PORT_H_INTERRUPT_A , fpgadab_fifoISR, pThis);
 
