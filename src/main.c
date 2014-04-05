@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include "startup.h"
 #include "hand_sensing.h"
+#include "ebiu_fifo_top.bin.h"
 
 /**
  *
@@ -44,7 +45,8 @@ int main( int argc, char *argv[] ) {
 
     /* FPGA setup function to configure FPGA, make sure the FPGA configuration
      binary data is loaded in to SDRAM at "FPGA_DATA_START_ADDR" */
-    ret = fpga_setup(); //returns 0 if successful and -1 if failed
+    //ret = fpga_setup(); //returns 0 if successful and -1 if failed
+    ret = fpga_programmer((unsigned char*) ebiu_fifo_top_bin, sizeof(ebiu_fifo_top_bin));
     if (ret) {
         printf("\r\n FPGA Setup Failed");
         return -1;
