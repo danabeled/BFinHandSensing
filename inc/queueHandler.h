@@ -84,4 +84,6 @@ void setYRange(int yNum);
  */
 void setZRange(int zNum);
 
+void queueHandler_display(void);
+
 #endif

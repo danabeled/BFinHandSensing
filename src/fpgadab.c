@@ -99,6 +99,48 @@ void fpgadab_fifoISR(void *pThisArgs) {
 }
 
 /** 
+ * FPGA reset routine. Setup setup sclk cycle, select whether go through filter, and mask all the
+ * interrupt at the beginning. Then reset the FIFO space and setup the FIFO size.
+ *
+ * Parameters:
+ *
+ * @return void
+ */
+void DAQ_inHouse_init(){
+  /* Initialization: Registers in FPGA
+     -- FIFOStatus	: [1, 255]
+     -- pFIFOCONG	: setup FIFO size;
+     -- pSCLKCONG	: setup sclk frequency;
+     -- pExIntMask 	: disable(mask) interrupt;
+     -- pFIRSEL		: filter selection
+  */
+
+//  *pFIRSEL	= FIREN; // filter plug in
+  *pEXINTMASK = 0x00FF; // mask all interrupt
+  coreTimer_delay(100);
+  *pFIFORST  = FIFORST; //Reset FIFO in FPGA
+
+  //setSampleRate(FSAMPLE,OS64);
+
+
+  *pFIFO_FULL_THR = FIFOSIZE; // Setup FIFO configuration
+  *pEXINTEDGE = 0x00FF; // set 1 for edge sensitive
+  *pEXINTPOL  = 0x00FF; // High level
+
+  *pEXINTPEND = 0x00FF;
+  *pEXINTMASK = 0x00F0; //Enable the interrupt
+
+  gpio_init();
+  ssvep_init();
+
+  *pADC_START = 0;
+
+  asm("nop;");
+  asm("ssync;");
+
+}
+
+/**
  *
  * Initialization of PORTFIO. This PORT is used as GPIO.
  * The output and input direction can be set using the MACROS
@@ -114,6 +156,9 @@ int fpgadab_init(charger_t *pThis, isrDisp_t *pIsrDisp)
     printf("[FPGADAB]: Failed init\n");
     return FAIL;
   }
+
+  // Reset PIC interrupts
+  DAQ_inHouse_init();
 
   // register isr
   isrDisp_registerCallback(pIsrDisp, ISR_PORT_H_INTERRUPT_A, fpgadab_fifoISR, pThis);
