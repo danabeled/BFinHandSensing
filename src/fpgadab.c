@@ -23,10 +23,8 @@
 #include "startup.h"
 #include "tll_config.h"
 #include <sys/exception.h>
-//#include "dab_interrupt.h"
 #include "dab_config.h"
 #include "tll6527_core_timer.h"
-//#include "config.h"
 #include "fpgadab.h"
 #include "dab_config.h"
 #include "bufferPool.h"
@@ -73,6 +71,13 @@ static unsigned short INT = 0;
  */
 
 void fpgadab_fifoISR(void *pThisArgs) {
+	//set the pin to output
+	charger_t *charger = (charger_t*) pThisArgs;
+	short position = charger->currentPlate;
+	*pGPIO_IN_INTE &= ~(1 << position);
+	//flag the new data
+	charger->newDataFlag = 1;
+	charger->total += 1;
 
     unsigned short isrSource = 0;
 
@@ -80,22 +85,19 @@ void fpgadab_fifoISR(void *pThisArgs) {
 
     // check the isr source in PIC.
     isrSource = *pEXINTPEND;
-    // TODO: your functionality.
-    printf("%d\r\n", isrSource);
 
     // clear the pending in PIC.
     *pEXINTPEND = isrSource; // Clear the pending reg in FPGA
     INT              = *pPORTHIO & PH11;   // read current state
 	*pPORTHIO_CLEAR     = INT;      // clear all inputs -> clear interrupt
 
-	charger_t * charger = (charger_t *) pThisArgs;
-	charger->newDataFlag = 1;
-//	ssvep_isr();
+
 
     asm("nop;");                       // add two nop/ssync cylces to ensure int clr arrives
     asm("ssync;");
     asm("nop;");
     asm("ssync;");
+    *pPORTHIO_CLEAR     = INT;      // clear all inputs -> clear interrupt
 }
 
 /** 

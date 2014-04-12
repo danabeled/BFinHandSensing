@@ -36,13 +36,22 @@
 #define ENABLE 1
 #define DISABLE 0
 
-#define refresh 2*1000000
+#define refresh 2*50000
 #define resolution 8
 
 int debug = DISABLE;
 
 isrDisp_t pDispThis;
 
+#define MAX 5
+long xPoints[MAX];
+int xcount = 1;
+long yPoints[MAX];
+int ycount = 1;
+long zPoints[MAX];
+int zcount = 1;
+
+int divisor = 0;
  /*****************  Private Method Prototypes *********************************/
 void setPinOutput(int position){
 	*pGPIO_IN_INTE &= ~(1 << position);
@@ -53,22 +62,24 @@ void setPinInput(int position){
 	*pGPIO_OE &= ~(1 << position);
 	*pGPIO_IN_INTE |= (1 << position);
 }
-long charger_time(int position, charger_t* charger){
+long charger_time(charger_t* charger){
+	short position = charger ->currentPlate;
 	unsigned long count = 0, total = 0;
 	unsigned long current_time = 0;
 	//start timer counting
 	timer_start();
 	//find the average of the charging time over refresh time
 	while(current_time < refresh){
+		charger->newDataFlag = 0;
 		//set the pin output mode
 		setPinOutput(position);
-		charger->newDataFlag = 0;
 		//set the pin input mode
 		setPinInput(position);
 		//see how many cycle pass before the pin is 1
 		while(charger->newDataFlag != 1){
 			count++;
 		}
+		setPinOutput(position);
 		//number of measure
 		total++;
 		//get pass time
@@ -110,6 +121,7 @@ void charger_init(charger_t *pThis) {
 	pThis->yTime = 0;
 	pThis->zTime = 0;
 	pThis->newDataFlag = 0;
+	pThis->total = 0;
 
 	timer_init();
 	printf("Charger init completed\r\n");
@@ -145,15 +157,56 @@ int charger_charge(charger_t *pThis) {
 
 	if(ERROR == timer_start()){return ERROR;}
 
+	if(divisor < MAX){
+		divisor++;
+	}
 	//measure x plate
-	pThis->xTime = charger_time(PLATE_X, pThis);
+	pThis->currentPlate = PLATE_X;
+	pThis->xTime = charger_time(pThis);
 
+
+	xPoints[xcount-1] = pThis->xTime;
+	int i;
+	int sum = 0;
+	for(i = 0; i < divisor; i++){
+		sum += xPoints[i];
+	}
+	pThis->xTime = sum / divisor;
+
+
+	//printf("x \r\n");
+	setPinOutput(PLATE_X);
 	//measure y plate
-	pThis->yTime = charger_time(PLATE_Y, pThis);
+	pThis->currentPlate = PLATE_Y;
+	pThis->yTime = charger_time(pThis);
+	setPinOutput(PLATE_Y);
 
+	yPoints[xcount-1] = pThis->yTime;
+	sum = 0;
+	for(i = 0; i < divisor; i++){
+		sum += yPoints[i];
+	}
+	pThis->yTime = sum / divisor;
+
+
+	//printf("y \r\n");
 	//measure z plate
-	pThis->zTime = charger_time(PLATE_Z, pThis);
+	pThis->currentPlate = PLATE_Z;
+	pThis->zTime = charger_time(pThis);
+	setPinOutput(PLATE_Z);
 
+	zPoints[xcount-1] = pThis->zTime;
+	sum = 0;
+	for(i = 0; i < divisor; i++){
+		sum += zPoints[i];
+	}
+	pThis->zTime = sum / divisor;
+
+	xcount++;
+	if(xcount == MAX){
+		xcount = 1;
+	}
+	//printf("z \r\n");
 	return SUCCESSFUL;
 }
 

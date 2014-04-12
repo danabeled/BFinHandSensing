@@ -32,5 +32,6 @@ void handSensing(){
     		continue;
     	}
         printf("%lu %lu %lu\r\n", charger.xTime, charger.yTime, charger.zTime);
+        charger.newDataFlag = 0;
     }
 }

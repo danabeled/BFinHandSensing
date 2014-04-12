@@ -213,24 +213,14 @@ int queueHandler_isPointAdded(queue_point_t * q, point_t * pt) {
  * @return void
  */
 void queueHandler_draw() {
-  point_t * iter = drawPointQueue.firstElement;
-  picotk_Color tempClr;
+  point_t * iter = drawPointQueue.lastElement;
+  picotk_Color tempClr = queueHandler_ZPointToColor(iter);
 
-  while(iter != NULL){
-	  tempClr = queueHandler_ZPointToColor(iter);
-	  if(drawPointQueue.queueSize == 1){
-		  picotk_DrawPoint(&tempClr,
-				  queueHandler_YPointToPixel(iter),
-				  queueHandler_XPointToPixel(iter));
-	  }else{
-		  picotk_DrawLine(&tempClr,
-				  queueHandler_XPointToPixel(iter->prevPoint),
-				  queueHandler_YPointToPixel(iter->prevPoint),
-				  queueHandler_XPointToPixel(iter),
-				  queueHandler_YPointToPixel(iter));
-	  }
-	  iter = iter -> nextPoint;
-  }
+  picotk_DrawCircle(tempClr,
+		  queueHandler_YPointToPixel(iter),
+		  queueHandler_XPointToPixel(iter),
+		  8);
+
   picotk_Show();
 }
 

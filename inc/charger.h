@@ -32,6 +32,8 @@ typedef struct {
 	unsigned long yTime; /** time for the y plate to charge */
 	unsigned long zTime; /** time for the z plate to charge */
 	unsigned short newDataFlag; /** allows readers to know there is new position data **/
+	unsigned short currentPlate;
+	unsigned long total;
 } charger_t;
 
 /***************** Method Prototypes ****************************************/
