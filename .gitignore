@@ -35,7 +35,5 @@ local.properties
 .metadata
 .settings
 .DS_Store
-*Test*
-*test*
 *.cproject
 hand_sensing
