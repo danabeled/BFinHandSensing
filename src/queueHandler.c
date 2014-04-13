@@ -177,6 +177,11 @@ picotk_Color queueHandler_ZPointToColor(point_t * point) {
  */
 int queueHandler_XPointToPixel(point_t * point) {
   return (int)((point->x_pos) * xScale);
+  int tmp = (point->x_pos) * xScale;
+  if(tmp > LCD_FRAMEHEIGHT - RADIUS){
+	  tmp = LCD_FRAMEHEIGHT - RADIUS;
+  }
+  return tmp;
 }
 
 /**
@@ -188,7 +193,11 @@ int queueHandler_XPointToPixel(point_t * point) {
  * @return int - LCD pixel column
  */
 int queueHandler_YPointToPixel(point_t * point) {
-  return (point->y_pos) * yScale;
+	int tmp = (point->y_pos) * yScale;
+	if(tmp > LCD_FRAMEWIDTH - RADIUS){
+		tmp = LCD_FRAMEWIDTH - RADIUS;
+	}
+	return tmp;
 }
 
 int queueHandler_isPointAdded(queue_point_t * q, point_t * pt) {
@@ -219,7 +228,7 @@ void queueHandler_draw() {
   picotk_DrawCircle(&tempClr,
 		  queueHandler_XPointToPixel(iter),
 		  queueHandler_YPointToPixel(iter),
-		  8);
+		  RADIUS);
 
   picotk_Show();
 }
