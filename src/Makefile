@@ -25,6 +25,7 @@ OBJS =  main.o \
         queueHandler.o \
         point.o	\
         ssvep.o	\
+        test_data.o \
         fpgadab.o
 
 # --- Libraries 	

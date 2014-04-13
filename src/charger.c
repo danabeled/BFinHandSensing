@@ -18,6 +18,7 @@
 #include "cdefBF52x_base.h"
 #include <ssvep.h>
 #include "fpgadab.h"
+#include "test_data.h"
 /***************** Private Defines *********************************************/
 //the following values are for the PORT F IMPLEMENTATION **FOR NOW**
 #define CHARGER_G_BITS 0x700
@@ -125,6 +126,7 @@ void charger_init(charger_t *pThis) {
 
 	timer_init();
 	printf("Charger init completed\r\n");
+	test_reset();
 }
 
 /** Starts the chargers polling loop 
@@ -134,7 +136,13 @@ void charger_init(charger_t *pThis) {
  * @return Zero on success, negative otherwise 
  * */
 int charger_run(charger_t *pThis) {
-	return charger_charge(pThis);
+	//test code
+	pThis->xTime = test_getData();
+	pThis->yTime = 100;
+	pThis->zTime = 100;
+	return SUCCESSFUL;
+
+	//return charger_charge(pThis);
 }
 
 /** set GPIO bits to input, start timer, poll until 3 plates

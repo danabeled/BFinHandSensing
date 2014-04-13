@@ -30,22 +30,14 @@ int queue_point_init(queue_point_t *pThis){
 */
 int queue_point_addPoint(queue_point_t *pThis, int x, int y, int z){
 	point_t *newPoint = (point_t *) malloc(sizeof(point_t));
-	if(pThis->queueSize == 0){ 
-		//new point becomes the first and last element if the list is empty
-		pThis->firstElement = newPoint; 
-		pThis->lastElement = newPoint;
-		newPoint->nextPoint = NULL;
-		STATUS = point_init(newPoint, x, y, z, NULL, NULL);
-		if(STATUS != 0){ return ERROR; }
-	}else{
-		STATUS = point_init(newPoint, x, y ,z,pThis->lastElement, NULL);
-		if(STATUS != 0){ return ERROR; }
-		point_t * temp = pThis->lastElement;
-		newPoint->prevPoint = pThis->lastElement;
-		pThis->lastElement->nextPoint = newPoint;
-		pThis->lastElement = newPoint;
-		newPoint->nextPoint = NULL;
+	if(pThis->queueSize != 0){
+		free(pThis->lastElement);
 	}
+	STATUS = point_init(newPoint, x, y, z, NULL, NULL);
+	if(STATUS != 0){ return ERROR; }
+	pThis->firstElement = newPoint;
+	pThis->lastElement = newPoint;
+	newPoint->nextPoint = NULL;
 	pThis->queueSize++;
 	return SUCCESSFUL;
 

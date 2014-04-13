@@ -31,7 +31,7 @@
 point_t * currPoint;
 isrDisp_t isrDisp;
 fb_t frameBuffer;
-int xScale=1, yScale=1, zScale=1;
+double xScale=1, yScale=1, zScale=1;
 
 picotk_Color * pixelFrame[LCD_FRAMEHEIGHT][LCD_FRAMEWIDTH];
 
@@ -96,7 +96,7 @@ void queueHandler_init() {
  * @return void
  */
 void setXRange(int xNum) {
-  xScale = LCD_FRAMEHEIGHT / xNum;
+  xScale = LCD_FRAMEHEIGHT / (double)xNum;
 }
 
 /**
@@ -108,7 +108,7 @@ void setXRange(int xNum) {
  * @return void
  */
 void setYRange(int yNum) {
-  yScale = LCD_FRAMEWIDTH / yNum;
+  yScale = LCD_FRAMEWIDTH / (double)yNum;
 }
 
 /**
@@ -120,7 +120,7 @@ void setYRange(int yNum) {
  * @return void
  */
 void setZRange(int zNum) {
-  zScale = 255/zNum;
+  zScale = 255/(double)zNum;
 }
 
 void drawEmptyPoint(){
@@ -176,7 +176,7 @@ picotk_Color queueHandler_ZPointToColor(point_t * point) {
  * @return int - LCD pixel row
  */
 int queueHandler_XPointToPixel(point_t * point) {
-  return (point->x_pos) * xScale;
+  return (int)((point->x_pos) * xScale);
 }
 
 /**
@@ -216,9 +216,9 @@ void queueHandler_draw() {
   point_t * iter = drawPointQueue.lastElement;
   picotk_Color tempClr = queueHandler_ZPointToColor(iter);
 
-  picotk_DrawCircle(tempClr,
-		  queueHandler_YPointToPixel(iter),
+  picotk_DrawCircle(&tempClr,
 		  queueHandler_XPointToPixel(iter),
+		  queueHandler_YPointToPixel(iter),
 		  8);
 
   picotk_Show();
