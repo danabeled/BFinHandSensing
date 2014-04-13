@@ -31,6 +31,7 @@
 #include "chunk.h"
 #include "ssvep.h"
 #include "charger.h"
+#include "constant.h"
 /******************** Global Data Instantiation***********************/
 /**
  * @param count		  counts the number of times it enters into the ISR
@@ -85,6 +86,16 @@ void fpgadab_fifoISR(void *pThisArgs) {
 
     // check the isr source in PIC.
     isrSource = *pEXINTPEND;
+
+    if((isrSource >> PUSHBUTTON_POSITION) % 2 == 1){
+    	if(charger->z_state != READY){
+    		charger->z_state = READY;
+		}else if(charger->x_state != READY){
+			charger->x_state = READY;
+		}else if(charger->y_state != READY){
+			charger->y_state = READY;
+		}
+    }
 
     // clear the pending in PIC.
     *pEXINTPEND = isrSource; // Clear the pending reg in FPGA

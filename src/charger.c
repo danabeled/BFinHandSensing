@@ -123,6 +123,9 @@ void charger_init(charger_t *pThis) {
 	pThis->zTime = 0;
 	pThis->newDataFlag = 0;
 	pThis->total = 0;
+	pThis->x_state = NOT_READY;
+	pThis->y_state = NOT_READY;
+	pThis->z_state = NOT_READY;
 
 	timer_init();
 	printf("Charger init completed\r\n");
@@ -137,12 +140,12 @@ void charger_init(charger_t *pThis) {
  * */
 int charger_run(charger_t *pThis) {
 	//test code
-	pThis->xTime = test_getData();
-	pThis->yTime = 100;
-	pThis->zTime = 100;
-	return SUCCESSFUL;
+//	pThis->xTime = test_getData();
+//	pThis->yTime = 100;
+//	pThis->zTime = 100;
+//	return SUCCESSFUL;
 
-	//return charger_charge(pThis);
+	return charger_charge(pThis);
 }
 
 /** set GPIO bits to input, start timer, poll until 3 plates

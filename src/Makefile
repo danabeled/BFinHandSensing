@@ -26,6 +26,7 @@ OBJS =  main.o \
         point.o	\
         ssvep.o	\
         test_data.o \
+        calibration.o \
         fpgadab.o
 
 # --- Libraries 	

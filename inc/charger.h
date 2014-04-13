@@ -16,7 +16,7 @@
   
 #ifndef _CHARGER_H_
 #define _CHARGER_H_
-
+#include "constant.h"
 
 
  /***************** Definitions  ********************************************/
@@ -28,6 +28,15 @@
 /** template attributes
  */
 typedef struct {
+	STATE x_state;
+	STATE y_state;
+	STATE z_state;
+	unsigned long baseline_x;
+	unsigned long baseline_y;
+	unsigned long baseline_z;
+	unsigned long range_x;
+	unsigned long range_y;
+	unsigned long range_z;
 	unsigned long xTime; /** time for the x plate to charge */
 	unsigned long yTime; /** time for the y plate to charge */
 	unsigned long zTime; /** time for the z plate to charge */
