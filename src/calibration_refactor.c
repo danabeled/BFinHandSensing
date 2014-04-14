@@ -63,6 +63,8 @@ double calculateStd(int*dataset, int datalen, double average){
 }
 
 void calibrate(charger_t * pThis) {
+	printf("\r\n Entering Baseline Calibration \r\n");
+
 	while (1) {
 
 		// Reset the charger obj if charger_run has an error
@@ -110,6 +112,7 @@ void calibrate(charger_t * pThis) {
 
 					//state changed
 					calState = CHARGING_Z;
+					printf("\r\n Entering Z-Plate Calibration \r\n");
 
 					//enable push button interrupt
 					*pGPIO_EN |= 1 << PUSHBUTTON_POSITION;//enable as GPIO
@@ -130,6 +133,7 @@ void calibrate(charger_t * pThis) {
 
 				if (pThis->z_state == READY) {
 					calState = CHARGING_X;
+					printf("\r\n Entering X-Plate Calibration \r\n");
 				}
 				break;
 
@@ -145,6 +149,7 @@ void calibrate(charger_t * pThis) {
 
 				if (pThis->x_state == READY) {
 					calState = CHARGING_Y;
+					printf("\r\n Entering Y-Plate Calibration \r\n");
 				}
 				break;
 
@@ -160,9 +165,13 @@ void calibrate(charger_t * pThis) {
 
 				if (pThis->y_state == READY) {
 					calState = CAL_DONE;
-					return;
 				}
 				break;
+
+			case CAL_DONE:
+
+				printf("\r\n Calibration Procedure Complete \r\n");
+				return;
 
 			default:
 				break;
