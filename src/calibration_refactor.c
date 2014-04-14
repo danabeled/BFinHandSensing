@@ -167,5 +167,8 @@ void calibrate(charger_t * pThis) {
 			default:
 				break;
 		}
+
+		printf("cali: %lu %lu %lu\r\n", pThis->xTime, pThis->yTime, pThis->zTime);
+		pThis->newDataFlag = 0; // Reset charger obj
 	}
 }
