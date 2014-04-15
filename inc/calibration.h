@@ -18,6 +18,7 @@
 /**/
 
 void calibrate(charger_t* pThis);
+void calibrate_baseline(charger_t* pThis);
 
 #endif
 

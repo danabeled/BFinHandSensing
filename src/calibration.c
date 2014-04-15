@@ -21,7 +21,7 @@ unsigned long max_x = 0;
 unsigned long max_y = 0;
 unsigned long max_z = 0;
 
-#define MAX_COUNT 100
+#define MAX_COUNT 200
 int dataset_x[MAX_COUNT];
 int dataset_y[MAX_COUNT];
 int dataset_z[MAX_COUNT];
@@ -175,5 +175,65 @@ void calibrate(charger_t * pThis) {
 				break;
 		}
 		pThis->newDataFlag = 0; // Reset charger obj
+	}
+}
+
+void calibrate_baseline(charger_t* pThis){
+	count = 0;
+	sum_x = 0;
+	sum_y = 0;
+	sum_z = 0;
+	queueHanlder_drawTextAtCenter("Calculating baseline...");
+	while (1) {
+		// Reset the charger obj if charger_run has an error
+		if(ERROR == charger_run(pThis)){
+			pThis->newDataFlag = 0;
+			continue;
+		}
+		if(pThis->xTime > MAX_TIMER_VALUE ||
+				pThis->yTime > MAX_TIMER_VALUE ||
+				pThis->zTime > MAX_TIMER_VALUE){
+			//ignore these values
+			continue;
+		}
+		printf("cali: %lu %lu %lu\r\n", pThis->xTime, pThis->yTime, pThis->zTime);
+
+		sum_x += pThis->xTime;
+		sum_y += pThis->yTime;
+		sum_z += pThis->zTime;
+
+		dataset_x[count] = pThis->xTime;
+		dataset_y[count] = pThis->yTime;
+		dataset_z[count] = pThis->zTime;
+		count++;
+
+		printf("count: %d\r\n", count);
+
+		if (count == MAX_COUNT) {
+
+			average_x = (double)sum_x / (double)count;
+			average_y = (double)sum_y / (double)count;
+			average_z = (double)sum_z / (double)count;
+
+			std_x = calculateStd(dataset_x, count, average_x);
+			std_y = calculateStd(dataset_y, count, average_y);
+			std_z = calculateStd(dataset_z, count, average_z);
+
+			average_x += std_x;
+			average_y += std_y;
+			average_z += std_z;
+
+			pThis->baseline_x = average_x;
+			pThis->baseline_y = average_y;
+			pThis->baseline_z = average_z;
+
+			printf("average:::: %f %f %f\r\n", average_x, average_y, average_z);
+			printf("std:::: %f %f %f\r\n", std_x, std_y, std_z);
+
+			//state changed
+			pThis->calibration_state = CHARGING_Z;
+			queueHanlder_drawTextAtCenter("Baseline calculation completed...");
+			return;
+		}
 	}
 }

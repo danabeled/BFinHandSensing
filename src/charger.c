@@ -37,7 +37,7 @@
 #define ENABLE 1
 #define DISABLE 0
 
-#define refresh 2*50000
+#define refresh 2*10000
 #define resolution 8
 
 int debug = DISABLE;
