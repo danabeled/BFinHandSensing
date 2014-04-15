@@ -5,6 +5,16 @@
 #define CALIBRATION	10
 #define FUNCTION	11
 
+typedef enum CAL_STATE {
+	BASELINE,
+	CHARGING_X,
+	CHARGING_Y,
+	CHARGING_Z,
+	CAL_DONE
+} CAL_STATE_T;
+
+CAL_STATE_T calState = BASELINE;
+
 short unsigned state = CALIBRATION;
 double average_x;
 double average_y;
@@ -52,80 +62,122 @@ double calculateStd(int*dataset, int datalen, double average){
 	return tmpStd;
 }
 
-void calibrate(charger_t* pThis){
-	while(1){
-		if(pThis->x_state == READY &&
-				pThis->y_state == READY &&
-				pThis->z_state == READY){
+void calibrate(charger_t * pThis) {
+	printf("\r\n Entering Baseline Calibration \r\n");
 
-			//find range
-			pThis->range_x = max_x - pThis->baseline_x;
-			pThis->range_y = max_y - pThis->baseline_y;
-			pThis->range_z = max_z - pThis->baseline_z;
+	while (1) {
 
-			printf("Calibration Done\r\n");
-			return;
-		}
+		// Reset the charger obj if charger_run has an error
 		if(ERROR == charger_run(pThis)){
 			pThis->newDataFlag = 0;
 			continue;
 		}
-		if(state == CALIBRATION){
-			sum_x += pThis->xTime;
-			sum_y += pThis->yTime;
-			sum_z += pThis->zTime;
 
-			dataset_x[count] = pThis->xTime;
-			dataset_y[count] = pThis->yTime;
-			dataset_z[count] = pThis->zTime;
-			count++;
-		}else{
-			if(pThis->z_state != READY){
+		// Calibration Procedure
+		switch (calState) {
+			// Calibration Step 1: Find Baseline 
+			// Get average timer counts for
+			// when 3D hand sensor is empty
+			case BASELINE:
+
+				sum_x += pThis->xTime;
+				sum_y += pThis->yTime;
+				sum_z += pThis->zTime;
+
+				dataset_x[count] = pThis->xTime;
+				dataset_y[count] = pThis->yTime;
+				dataset_z[count] = pThis->zTime;
+				count++;
+
+				if (count == MAX_COUNT) {
+
+					average_x = (double)sum_x / (double)count;
+					average_y = (double)sum_y / (double)count;
+					average_z = (double)sum_z / (double)count;
+
+					std_x = calculateStd(dataset_x, count, average_x);
+					std_y = calculateStd(dataset_y, count, average_y);
+					std_z = calculateStd(dataset_z, count, average_z);
+
+					average_x += std_x;
+					average_y += std_y;
+					average_z += std_z;
+
+					pThis->baseline_x = average_x;
+					pThis->baseline_y = average_y;
+					pThis->baseline_z = average_z;
+
+					printf("average: %f %f %f\r\n", average_x, average_y, average_z);
+					printf("std: %f %f %f\r\n", std_x, std_y, std_z);
+
+					//state changed
+					calState = CHARGING_Z;
+					printf("\r\n Entering Z-Plate Calibration \r\n");
+
+					//enable push button interrupt
+					*pGPIO_EN |= 1 << PUSHBUTTON_POSITION;//enable as GPIO
+					*pGPIO_OE |= 1 << PUSHBUTTON_POSITION;//configure i/o
+					*pGPIO_IN_INTE |= 1 << PUSHBUTTON_POSITION;//interrupt enable
+				}
+				break;
+
+			// Calibration Step 2: Z-Plate 
+			// Get the max timer counts on 
+			// the z-plate when a hand is right
+			// over it
+			case CHARGING_Z:
+			
 				if(max_z < pThis->zTime){
 					max_z = pThis->zTime;
 				}
-			}else if(pThis->x_state != READY){
+
+				if (pThis->z_state == READY) {
+					calState = CHARGING_X;
+					printf("\r\n Entering X-Plate Calibration \r\n");
+				}
+				break;
+
+			// Calibration Step 3: X-Plate 
+			// Get the max timer counts on 
+			// the X-plate when a hand is right
+			// over it
+			case CHARGING_X:
+
 				if(max_x < pThis->xTime){
 					max_x = pThis->xTime;
 				}
-			}else if(pThis->y_state != READY){
+
+				if (pThis->x_state == READY) {
+					calState = CHARGING_Y;
+					printf("\r\n Entering Y-Plate Calibration \r\n");
+				}
+				break;
+
+			// Calibration Step 4: Y-Plate 
+			// Get the max timer counts on 
+			// the y-plate when a hand is right
+			// over it
+			case CHARGING_Y:
+
 				if(max_y < pThis->yTime){
 					max_y = pThis->yTime;
 				}
-			}
 
+				if (pThis->y_state == READY) {
+					calState = CAL_DONE;
+				}
+				break;
+
+			case CAL_DONE:
+
+				printf("\r\n Calibration Procedure Complete \r\n");
+				return;
+
+			default:
+				break;
 		}
 
-		if(count == MAX_COUNT){
-			average_x = (double)sum_x / (double)count;
-			average_y = (double)sum_y / (double)count;
-			average_z = (double)sum_z / (double)count;
-
-			std_x = calculateStd(dataset_x, count, average_x);
-			std_y = calculateStd(dataset_y, count, average_y);
-			std_z = calculateStd(dataset_z, count, average_z);
-
-			average_x += std_x;
-			average_y += std_y;
-			average_z += std_z;
-			pThis->baseline_x = average_x;
-			pThis->baseline_y = average_y;
-			pThis->baseline_z = average_z;
-
-			printf("average: %f %f %f\r\n", average_x, average_y, average_z);
-			printf("std: %f %f %f\r\n", std_x, std_y, std_z);
-
-			//state changed
-			state = FUNCTION;
-
-			count++;
-
-			//enable push button interrupt
-			*pGPIO_EN |= 1 << PUSHBUTTON_POSITION;//enable as GPIO
-			*pGPIO_OE |= 1 << PUSHBUTTON_POSITION;//configure i/o
-			*pGPIO_IN_INTE |= 1 << PUSHBUTTON_POSITION;//interrupt enable
-		}
 		printf("cali: %lu %lu %lu\r\n", pThis->xTime, pThis->yTime, pThis->zTime);
-		pThis->newDataFlag = 0;
+		pThis->newDataFlag = 0; // Reset charger obj
 	}
 }
