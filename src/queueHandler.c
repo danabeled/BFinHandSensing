@@ -24,6 +24,7 @@
 *******************************************************************************/
 #define LCD_FRAMEHEIGHT 320
 #define LCD_FRAMEWIDTH 240
+#define MAX_COLOR 255
 
 /******************************************************************************
                                   GLOBALS
@@ -120,7 +121,7 @@ void setYRange(int yNum) {
  * @return void
  */
 void setZRange(int zNum) {
-  zScale = 255/(double)zNum;
+  zScale = MAX_COLOR/(double)zNum;
 }
 
 void drawEmptyPoint(){
@@ -162,9 +163,12 @@ void queueHandler_clear() {
  */
 picotk_Color queueHandler_ZPointToColor(point_t * point) {
   picotk_Color color;
+  int tmp = (point->z_pos) * zScale;
+  if(tmp > MAX_COLOR) tmp = MAX_COLOR;
+  if(tmp < 0) tmp = 0;
   color.red = (point->z_pos) * zScale;
-  color.green = (point->z_pos) * zScale;
-  color.blue = (point->z_pos) * zScale;
+  color.green = 156;//magic number
+  color.blue = 0;//magic number
   return color;
 }
 /**
@@ -176,10 +180,12 @@ picotk_Color queueHandler_ZPointToColor(point_t * point) {
  * @return int - LCD pixel row
  */
 int queueHandler_XPointToPixel(point_t * point) {
-  return (int)((point->x_pos) * xScale);
   int tmp = (point->x_pos) * xScale;
   if(tmp > LCD_FRAMEHEIGHT - RADIUS){
 	  tmp = LCD_FRAMEHEIGHT - RADIUS;
+  }
+  if(tmp < RADIUS){
+	  tmp = RADIUS;
   }
   return tmp;
 }
@@ -196,6 +202,9 @@ int queueHandler_YPointToPixel(point_t * point) {
 	int tmp = (point->y_pos) * yScale;
 	if(tmp > LCD_FRAMEWIDTH - RADIUS){
 		tmp = LCD_FRAMEWIDTH - RADIUS;
+	}
+	if(tmp < RADIUS){
+		tmp = RADIUS;
 	}
 	return tmp;
 }

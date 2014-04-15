@@ -36,6 +36,7 @@ void handSensing(){
     setZRange(charger.range_z);
 
 	printf("\r\n\n\n System Ready...\r\n\n\n");
+
     while(1){
     	if(ERROR == charger_run(&charger)){
     		charger.newDataFlag = 0;
@@ -46,18 +47,21 @@ void handSensing(){
 		diff_y = charger.yTime - charger.baseline_y;
 		diff_z = charger.zTime - charger.baseline_z;
 
-		printf("diff: %d \r\n", diff_x);
-		if((diff_x > RADIUS ) || (diff_y > RADIUS)){
+		if((diff_x > RADIUS && diff_x <= charger.range_x )
+				|| (diff_y > RADIUS && diff_y <= charger.range_y)){
 			point1.x_pos = diff_x;
 			point1.y_pos = diff_y;
 			point1.z_pos = diff_z;
 			queueHandler_pushPoint(&point1);
 			queueHandler_draw();
+			printf("In range: %lu %lu %lu %d %d\r\n",
+					charger.xTime, charger.yTime, charger.zTime,
+					diff_x, diff_y);
 		}else{
-			printf("Out range\r\n");
+			printf("Out range: %lu %lu %lu %d %d\r\n",
+							charger.xTime, charger.yTime, charger.zTime,
+							diff_x, diff_y);
 		}
-
-		printf("hand: %lu %lu %lu\r\n", charger.xTime, charger.yTime, charger.zTime);
         charger.newDataFlag = 0;
     }
 }
