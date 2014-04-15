@@ -21,7 +21,7 @@ long max_x = 0;
 long max_y = 0;
 long max_z = 0;
 
-#define MAX_COUNT 1
+#define MAX_COUNT 100
 int dataset_x[MAX_COUNT];
 int dataset_y[MAX_COUNT];
 int dataset_z[MAX_COUNT];
@@ -45,7 +45,6 @@ double calculateStd(int*dataset, int datalen, double average){
 	int tmpSum = 0;
 	for(i = 0; i < datalen; i++){
 		tmpSum += (dataset[i] - average)*(dataset[i] - average);
-		printf("%lu\r\n", dataset[i]);
 	}
 	double tmpVariance = ((double)tmpSum)/datalen;
 	double tmpStd = sqrt(tmpVariance);
@@ -54,14 +53,13 @@ double calculateStd(int*dataset, int datalen, double average){
 
 void calibrate(charger_t * pThis) {
 	printf("\r\n Entering Baseline Calibration \r\n");
-
 	while (1) {
-
 		// Reset the charger obj if charger_run has an error
 		if(ERROR == charger_run(pThis)){
 			pThis->newDataFlag = 0;
 			continue;
 		}
+		printf("cali: %lu %lu %lu\r\n", pThis->xTime, pThis->yTime, pThis->zTime);
 
 		// Calibration Procedure
 		switch (pThis->calibration_state) {
@@ -69,7 +67,6 @@ void calibrate(charger_t * pThis) {
 			// Get average timer counts for
 			// when 3D hand sensor is empty
 			case BASELINE:
-
 				sum_x += pThis->xTime;
 				sum_y += pThis->yTime;
 				sum_z += pThis->zTime;
@@ -97,8 +94,8 @@ void calibrate(charger_t * pThis) {
 					pThis->baseline_y = average_y;
 					pThis->baseline_z = average_z;
 
-					printf("average: %f %f %f\r\n", average_x, average_y, average_z);
-					printf("std: %f %f %f\r\n", std_x, std_y, std_z);
+					printf("average:::: %f %f %f\r\n", average_x, average_y, average_z);
+					printf("std:::: %f %f %f\r\n", std_x, std_y, std_z);
 
 					//state changed
 					pThis->calibration_state = CHARGING_Z;
@@ -150,6 +147,11 @@ void calibrate(charger_t * pThis) {
 
 				if (pThis->y_state == READY) {
 					pThis->calibration_state = CAL_DONE;
+
+					//before exiting we need to calculate the range for each plate
+					pThis->range_x = max_x - pThis->baseline_x;
+					pThis->range_y = max_y - pThis->baseline_y;
+					pThis->range_z = max_z - pThis->baseline_z;
 					//calibration done here, otherwise we need another sample to exit the
 					//calibration mode
 					printf("\r\n Calibration Procedure Complete \r\n");
@@ -160,8 +162,6 @@ void calibrate(charger_t * pThis) {
 			default:
 				break;
 		}
-
-		printf("cali: %lu %lu %lu\r\n", pThis->xTime, pThis->yTime, pThis->zTime);
 		pThis->newDataFlag = 0; // Reset charger obj
 	}
 }
