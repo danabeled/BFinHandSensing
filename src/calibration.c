@@ -53,6 +53,7 @@ double calculateStd(int*dataset, int datalen, double average){
 
 void calibrate(charger_t * pThis) {
 	printf("\r\n Entering Baseline Calibration \r\n");
+	queueHanlder_drawTextAtCenter("Finding baseline...");
 	while (1) {
 		// Reset the charger obj if charger_run has an error
 		if(ERROR == charger_run(pThis)){
@@ -75,6 +76,8 @@ void calibrate(charger_t * pThis) {
 				dataset_y[count] = pThis->yTime;
 				dataset_z[count] = pThis->zTime;
 				count++;
+
+				printf("count: %d\r\n", count);
 
 				if (count == MAX_COUNT) {
 
@@ -100,6 +103,7 @@ void calibrate(charger_t * pThis) {
 					//state changed
 					pThis->calibration_state = CHARGING_Z;
 					printf("\r\n Entering Z-Plate Calibration \r\n");
+					queueHanlder_drawTextAtCenter("Please calibrate Z-Plate...");
 				}
 				break;
 
@@ -116,6 +120,7 @@ void calibrate(charger_t * pThis) {
 				if (pThis->z_state == READY) {
 					pThis->calibration_state = CHARGING_X;
 					printf("\r\n Entering X-Plate Calibration \r\n");
+					queueHanlder_drawTextAtCenter("Please calibrate X-Plate...");
 				}
 				break;
 
@@ -132,6 +137,7 @@ void calibrate(charger_t * pThis) {
 				if (pThis->x_state == READY) {
 					pThis->calibration_state = CHARGING_Y;
 					printf("\r\n Entering Y-Plate Calibration \r\n");
+					queueHanlder_drawTextAtCenter("Please calibrate Y-Plate...");
 				}
 				break;
 

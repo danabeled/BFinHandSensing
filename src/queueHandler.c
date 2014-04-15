@@ -38,6 +38,8 @@ picotk_Color * pixelFrame[LCD_FRAMEHEIGHT][LCD_FRAMEWIDTH];
 
 queue_point_t drawPointQueue;
 
+picotk_Color RIVER_BLUE = { .red = 0, .green = 102, .blue = 204 };
+
 /******************************************************************************
                             FUNCTION PROTOTYPES
 *******************************************************************************/
@@ -262,4 +264,9 @@ void queueHandler_display(){
 		iter = iter -> nextPoint;
 	}
 	printf("---------------\r\n");
+}
+void queueHanlder_drawTextAtCenter(char* string){
+	picotk_DrawTextCentered(&picotk_font_8x13, &RIVER_BLUE, LCD_FRAMEHEIGHT/2,
+			LCD_FRAMEWIDTH/2, string);
+	picotk_Show();
 }

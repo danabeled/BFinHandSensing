@@ -19,15 +19,12 @@ void handSensing(){
 	queueHandler_init();
 
     charger_t charger;
+
     charger_init(&charger);
 
-	point_t point1;
-	point1.x_pos = 100;
-	point1.y_pos = 100;
-	point1.z_pos = 100;
-	queueHandler_pushPoint(&point1);
-	queueHandler_draw();
-	queueHandler_display();
+    point_t point1;
+
+    queueHanlder_drawTextAtCenter("Calibration...");
 
     //calibration
     calibrate(&charger);
@@ -35,7 +32,7 @@ void handSensing(){
     setYRange(charger.range_y);
     setZRange(charger.range_z);
 
-	printf("\r\n\n\n System Ready...\r\n\n\n");
+	queueHanlder_drawTextAtCenter("System Ready...");
 
     while(1){
     	if(ERROR == charger_run(&charger)){

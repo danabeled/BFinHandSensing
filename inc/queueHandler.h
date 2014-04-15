@@ -86,4 +86,6 @@ void setZRange(int zNum);
 
 void queueHandler_display(void);
 
+void queueHanlder_drawTextAtCenter(char* string);
+
 #endif
