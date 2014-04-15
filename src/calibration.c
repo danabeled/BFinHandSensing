@@ -5,16 +5,6 @@
 #define CALIBRATION	10
 #define FUNCTION	11
 
-typedef enum CAL_STATE {
-	BASELINE,
-	CHARGING_X,
-	CHARGING_Y,
-	CHARGING_Z,
-	CAL_DONE
-} CAL_STATE_T;
-
-CAL_STATE_T calState = BASELINE;
-
 short unsigned state = CALIBRATION;
 double average_x;
 double average_y;
@@ -31,7 +21,7 @@ long max_x = 0;
 long max_y = 0;
 long max_z = 0;
 
-#define MAX_COUNT 50
+#define MAX_COUNT 1
 int dataset_x[MAX_COUNT];
 int dataset_y[MAX_COUNT];
 int dataset_z[MAX_COUNT];
@@ -74,7 +64,7 @@ void calibrate(charger_t * pThis) {
 		}
 
 		// Calibration Procedure
-		switch (calState) {
+		switch (pThis->calibration_state) {
 			// Calibration Step 1: Find Baseline 
 			// Get average timer counts for
 			// when 3D hand sensor is empty
@@ -111,13 +101,8 @@ void calibrate(charger_t * pThis) {
 					printf("std: %f %f %f\r\n", std_x, std_y, std_z);
 
 					//state changed
-					calState = CHARGING_Z;
+					pThis->calibration_state = CHARGING_Z;
 					printf("\r\n Entering Z-Plate Calibration \r\n");
-
-					//enable push button interrupt
-					*pGPIO_EN |= 1 << PUSHBUTTON_POSITION;//enable as GPIO
-					*pGPIO_OE |= 1 << PUSHBUTTON_POSITION;//configure i/o
-					*pGPIO_IN_INTE |= 1 << PUSHBUTTON_POSITION;//interrupt enable
 				}
 				break;
 
@@ -132,7 +117,7 @@ void calibrate(charger_t * pThis) {
 				}
 
 				if (pThis->z_state == READY) {
-					calState = CHARGING_X;
+					pThis->calibration_state = CHARGING_X;
 					printf("\r\n Entering X-Plate Calibration \r\n");
 				}
 				break;
@@ -148,7 +133,7 @@ void calibrate(charger_t * pThis) {
 				}
 
 				if (pThis->x_state == READY) {
-					calState = CHARGING_Y;
+					pThis->calibration_state = CHARGING_Y;
 					printf("\r\n Entering Y-Plate Calibration \r\n");
 				}
 				break;
@@ -164,14 +149,13 @@ void calibrate(charger_t * pThis) {
 				}
 
 				if (pThis->y_state == READY) {
-					calState = CAL_DONE;
+					pThis->calibration_state = CAL_DONE;
+					//calibration done here, otherwise we need another sample to exit the
+					//calibration mode
+					printf("\r\n Calibration Procedure Complete \r\n");
+					return;
 				}
 				break;
-
-			case CAL_DONE:
-
-				printf("\r\n Calibration Procedure Complete \r\n");
-				return;
 
 			default:
 				break;

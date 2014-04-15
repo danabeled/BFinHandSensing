@@ -15,7 +15,12 @@ int diff_z = 0;
 
 
 void handSensing(){
+
 	queueHandler_init();
+
+    charger_t charger;
+    charger_init(&charger);
+
 	point_t point1;
 	point1.x_pos = 100;
 	point1.y_pos = 100;
@@ -24,35 +29,25 @@ void handSensing(){
 	queueHandler_draw();
 	queueHandler_display();
 
-    charger_t charger;
-    charger_init(&charger);
-
     //calibration
     calibrate(&charger);
     setXRange(charger.range_x);
     setYRange(charger.range_y);
     setZRange(charger.range_z);
 
+	printf("\r\n\n\n System Ready...\r\n\n\n");
     while(1){
     	if(ERROR == charger_run(&charger)){
     		charger.newDataFlag = 0;
     		continue;
     	}
 
-//    	//testing
-//    	if(charger.xTime == -1){
-//    		printf("Test Done\r\n");
-//    		return;
-//    	}
-
 		diff_x = charger.xTime - charger.baseline_x;
 		diff_y = charger.yTime - charger.baseline_y;
 		diff_z = charger.zTime - charger.baseline_z;
 
 		printf("diff: %d \r\n", diff_x);
-		if((diff_x > RADIUS ) ||
-				(diff_y > RADIUS) ||
-				(diff_z > RADIUS)){
+		if((diff_x > RADIUS ) || (diff_y > RADIUS)){
 			point1.x_pos = diff_x;
 			point1.y_pos = diff_y;
 			point1.z_pos = diff_z;

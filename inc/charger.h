@@ -31,6 +31,7 @@ typedef struct {
 	STATE x_state;
 	STATE y_state;
 	STATE z_state;
+	CAL_STATE_T calibration_state;
 	unsigned long baseline_x;
 	unsigned long baseline_y;
 	unsigned long baseline_z;

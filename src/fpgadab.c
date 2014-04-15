@@ -87,14 +87,12 @@ void fpgadab_fifoISR(void *pThisArgs) {
     // check the isr source in PIC.
     isrSource = *pEXINTPEND;
 
-    if((isrSource >> PUSHBUTTON_POSITION) % 2 == 1){
-    	if(charger->z_state != READY){
-    		charger->z_state = READY;
-		}else if(charger->x_state != READY){
-			charger->x_state = READY;
-		}else if(charger->y_state != READY){
-			charger->y_state = READY;
-		}
+    if((isrSource >> CAL_Z_PLATE) % 2){
+    	charger->z_state = READY;
+    }else if((isrSource >> CAL_X_PLATE) % 2){
+    	charger->x_state = READY;
+    }else if((isrSource >> CAL_Y_PLATE) % 2){
+    	charger->y_state = READY;
     }
 
     // clear the pending in PIC.
@@ -141,7 +139,7 @@ void DAQ_inHouse_init(){
   *pEXINTPOL  = 0x00FF; // High level
 
   *pEXINTPEND = 0x00FF;
-  *pEXINTMASK = 0x00F0; //Enable the interrupt
+  *pEXINTMASK = 0x0000; //Enable the interrupt
 
   gpio_init();
   ssvep_init();
