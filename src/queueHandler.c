@@ -236,7 +236,7 @@ void queueHandler_draw() {
   point_t * iter = drawPointQueue.lastElement;
   picotk_Color tempClr = queueHandler_ZPointToColor(iter);
 
-  picotk_DrawCircle(&tempClr,
+  picotk_FillCircle(&tempClr,
 		  queueHandler_XPointToPixel(iter),
 		  queueHandler_YPointToPixel(iter),
 		  RADIUS);

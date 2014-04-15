@@ -13,13 +13,13 @@ short unsigned count = 0;
 double std_x;
 double std_y;
 double std_z;
-long sum_x = 0;
-long sum_y = 0;
-long sum_z = 0;
+unsigned long sum_x = 0;
+unsigned long sum_y = 0;
+unsigned long sum_z = 0;
 
-long max_x = 0;
-long max_y = 0;
-long max_z = 0;
+unsigned long max_x = 0;
+unsigned long max_y = 0;
+unsigned long max_z = 0;
 
 #define MAX_COUNT 100
 int dataset_x[MAX_COUNT];
@@ -58,6 +58,12 @@ void calibrate(charger_t * pThis) {
 		// Reset the charger obj if charger_run has an error
 		if(ERROR == charger_run(pThis)){
 			pThis->newDataFlag = 0;
+			continue;
+		}
+		if(pThis->xTime > MAX_TIMER_VALUE ||
+				pThis->yTime > MAX_TIMER_VALUE ||
+				pThis->zTime > MAX_TIMER_VALUE){
+			//ignore these values
 			continue;
 		}
 		printf("cali: %lu %lu %lu\r\n", pThis->xTime, pThis->yTime, pThis->zTime);

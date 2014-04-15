@@ -13,17 +13,13 @@ int diff_x = 0;
 int diff_y = 0;
 int diff_z = 0;
 
+charger_t charger;
+point_t point1;
 
 void handSensing(){
 
 	queueHandler_init();
-
-    charger_t charger;
-
     charger_init(&charger);
-
-    point_t point1;
-
     queueHanlder_drawTextAtCenter("Calibration...");
 
     //calibration
@@ -51,13 +47,15 @@ void handSensing(){
 			point1.z_pos = diff_z;
 			queueHandler_pushPoint(&point1);
 			queueHandler_draw();
-			printf("In range: %lu %lu %lu %d %d\r\n",
+			printf("In range. Time: %lu %lu %lu, Diff: %d %d %d, Range: %d %d %d\r\n",
 					charger.xTime, charger.yTime, charger.zTime,
-					diff_x, diff_y);
+					diff_x, diff_y, diff_z,
+					charger.range_x, charger.range_y, charger.range_z);
 		}else{
-			printf("Out range: %lu %lu %lu %d %d\r\n",
-							charger.xTime, charger.yTime, charger.zTime,
-							diff_x, diff_y);
+			printf("Out range. Time: %lu %lu %lu, Diff: %d %d %d, Range: %d %d %d\r\n",
+								charger.xTime, charger.yTime, charger.zTime,
+								diff_x, diff_y, diff_z,
+								charger.range_x, charger.range_y, charger.range_z);
 		}
         charger.newDataFlag = 0;
     }
