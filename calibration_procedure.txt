@@ -1,0 +1,27 @@
+This file is the procedure to calibrate Ada Hand Tracker.
+
+1. Initially, one person (demonstrator) should be standing in front of the 
+   3D hand sensor without putting any hand in it. The hand
+   sensor should be disconnected from power. 
+ 
+2. The person next to system (controller) should then power the hand sensor.
+   Baseline values for each plate should be
+   printing on the console.
+   
+3. After 100 values are collected and the average value for each
+   plate is calculated, the procedure should be proceed to find
+   the max timer count for the Z-plate.
+
+4. The demonstrator should then place his hand as close to the Z-plate
+   as possible without touching it. After this, the controller should
+   disconnect the hand sensor and trigger an interrupt by applying 5V to
+   pin 3. The procedure should move to the "calibrate x-plate" phase.
+   
+5. Step 4 should be repeated for the other two plates (the interrupts should
+   be triggered using pins 4 and 5 for the x and y plates, respectively).
+   
+6. The console should indicate that the calibration is finished and the
+   system has entered normal operation. The LCD screen should display a filled
+   circle that moves and changes color based on the position of the demostrator's hand
+    
+
