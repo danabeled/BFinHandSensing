@@ -43,16 +43,16 @@ void handSensing(){
 		diff_y = charger.yTime - charger.baseline_y;
 		diff_z = charger.zTime - charger.baseline_z;
 
-		if(diff_x < 0 || diff_y < 0 || diff_z < 0){
-			negative_count++;
-			if(negative_count == NEGATIVE_MAX){
-				negative_count = 0;
-				calibrate_baseline(&charger);
-				continue;
-			}
-		}else{
-			negative_count = 0;
-		}
+//		if(diff_x < 0 || diff_y < 0 || diff_z < 0){
+//			negative_count++;
+//			if(negative_count == NEGATIVE_MAX){
+//				negative_count = 0;
+//				calibrate_baseline(&charger);
+//				continue;
+//			}
+//		}else{
+//			negative_count = 0;
+//		}
 
 		if((diff_x > RADIUS && diff_x <= charger.range_x )
 				&& (diff_y > RADIUS && diff_y <= charger.range_y)){

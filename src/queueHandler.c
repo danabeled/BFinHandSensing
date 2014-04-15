@@ -183,8 +183,8 @@ picotk_Color queueHandler_ZPointToColor(point_t * point) {
  */
 int queueHandler_XPointToPixel(point_t * point) {
   int tmp = (point->x_pos) * xScale;
-  if(tmp > LCD_FRAMEHEIGHT - RADIUS){
-	  tmp = LCD_FRAMEHEIGHT - RADIUS;
+  if(tmp > LCD_FRAMEHEIGHT - RADIUS - 2){
+	  tmp = LCD_FRAMEHEIGHT - RADIUS - 2;
   }
   if(tmp < RADIUS){
 	  tmp = RADIUS;
@@ -202,8 +202,8 @@ int queueHandler_XPointToPixel(point_t * point) {
  */
 int queueHandler_YPointToPixel(point_t * point) {
 	int tmp = (point->y_pos) * yScale;
-	if(tmp > LCD_FRAMEWIDTH - RADIUS){
-		tmp = LCD_FRAMEWIDTH - RADIUS;
+	if(tmp > LCD_FRAMEWIDTH - RADIUS  - 2){
+		tmp = LCD_FRAMEWIDTH - RADIUS  - 2;
 	}
 	if(tmp < RADIUS){
 		tmp = RADIUS;

@@ -10,7 +10,7 @@
 #define CAL_Y_PLATE 5
 #define CAL_Z_PLATE 3
 
-#define MAX_TIMER_VALUE 30000
+#define MAX_TIMER_VALUE 20000
 
 typedef enum STATE{
 	READY,

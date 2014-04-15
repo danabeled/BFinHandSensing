@@ -13,6 +13,7 @@ short unsigned count = 0;
 double std_x;
 double std_y;
 double std_z;
+const double NUM_STD = 3;
 unsigned long sum_x = 0;
 unsigned long sum_y = 0;
 unsigned long sum_z = 0;
@@ -21,7 +22,7 @@ unsigned long max_x = 0;
 unsigned long max_y = 0;
 unsigned long max_z = 0;
 
-#define MAX_COUNT 200
+#define MAX_COUNT 300
 int dataset_x[MAX_COUNT];
 int dataset_y[MAX_COUNT];
 int dataset_z[MAX_COUNT];
@@ -95,9 +96,9 @@ void calibrate(charger_t * pThis) {
 					std_y = calculateStd(dataset_y, count, average_y);
 					std_z = calculateStd(dataset_z, count, average_z);
 
-					average_x += std_x;
-					average_y += std_y;
-					average_z += std_z;
+					average_x += NUM_STD * std_x;
+					average_y += NUM_STD * std_y;
+					average_z += NUM_STD * std_z;
 
 					pThis->baseline_x = average_x;
 					pThis->baseline_y = average_y;
@@ -121,6 +122,7 @@ void calibrate(charger_t * pThis) {
 			
 				if(max_z < pThis->zTime){
 					max_z = pThis->zTime;
+					printf("Z current range: %d\r\n", max_z - pThis->baseline_z);
 				}
 
 				if (pThis->z_state == READY) {
@@ -138,6 +140,7 @@ void calibrate(charger_t * pThis) {
 
 				if(max_x < pThis->xTime){
 					max_x = pThis->xTime;
+					printf("x current range: %d\r\n", max_x - pThis->baseline_x);
 				}
 
 				if (pThis->x_state == READY) {
@@ -155,6 +158,7 @@ void calibrate(charger_t * pThis) {
 
 				if(max_y < pThis->yTime){
 					max_y = pThis->yTime;
+					printf("y current range: %d\r\n", max_y - pThis->baseline_y);
 				}
 
 				if (pThis->y_state == READY) {
@@ -219,9 +223,9 @@ void calibrate_baseline(charger_t* pThis){
 			std_y = calculateStd(dataset_y, count, average_y);
 			std_z = calculateStd(dataset_z, count, average_z);
 
-			average_x += std_x;
-			average_y += std_y;
-			average_z += std_z;
+			average_x += NUM_STD * std_x;
+			average_y += NUM_STD * std_y;
+			average_z += NUM_STD * std_z;
 
 			pThis->baseline_x = average_x;
 			pThis->baseline_y = average_y;
