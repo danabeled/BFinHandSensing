@@ -16,6 +16,8 @@ int diff_z = 0;
 int negative_count = 0;
 #define NEGATIVE_MAX 20
 
+int pos_count = 0;
+
 charger_t charger;
 point_t point1;
 
@@ -43,15 +45,23 @@ void handSensing(){
 		diff_y = charger.yTime - charger.baseline_y;
 		diff_z = charger.zTime - charger.baseline_z;
 
-//		if(diff_x < 0 || diff_y < 0 || diff_z < 0){
+//		if(diff_x < -50 || diff_y < -50 || diff_z < -50){
 //			negative_count++;
 //			if(negative_count == NEGATIVE_MAX){
 //				negative_count = 0;
 //				calibrate_baseline(&charger);
 //				continue;
 //			}
+//		}else if(diff_x > charger.range_x || diff_y > charger.range_y || diff_z > charger.range_z){
+//			pos_count++;
+//			if(pos_count == NEGATIVE_MAX){
+//				pos_count = 0;
+//				calibrate_baseline(&charger);
+//				continue;
+//			}
 //		}else{
 //			negative_count = 0;
+//			pos_count = 0;
 //		}
 
 		if((diff_x > RADIUS && diff_x <= charger.range_x )

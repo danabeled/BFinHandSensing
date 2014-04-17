@@ -60,23 +60,8 @@ void setPinOutput(int position){
 	*pGPIO_OUT &= ~(1 << position);
 }
 void setPinInput(int position, charger_t* pThis){
-	if(pThis->calibration_state == BASELINE || pThis->calibration_state == CAL_DONE){
-		*pGPIO_OE &= ~(1 << position);
-		*pGPIO_IN_INTE |= (1 << position);
-		return;
-	}else if(pThis->calibration_state == CHARGING_X){
-		*pGPIO_OE &= ~(1 << position | 1 << CAL_X_PLATE);
-		*pGPIO_IN_INTE |= (1 << position | 1 << CAL_X_PLATE);
-		return;
-	}else if(pThis->calibration_state == CHARGING_Y){
-		*pGPIO_OE &= ~(1 << position | 1 << CAL_Y_PLATE);
-		*pGPIO_IN_INTE |= (1 << position | 1 << CAL_Y_PLATE);
-		return;
-	}else if(pThis->calibration_state == CHARGING_Z){
-		*pGPIO_OE &= ~(1 << position | 1 << CAL_Z_PLATE);
-		*pGPIO_IN_INTE |= (1 << position | 1 << CAL_Z_PLATE);
-		return;
-	}
+	*pGPIO_OE &= ~(1 << position | 1 << CAL_Z_PLATE | 1 << CAL_X_PLATE | 1 << CAL_Y_PLATE);
+	*pGPIO_IN_INTE |= (1 << position | 1 << CAL_Z_PLATE | 1 << CAL_X_PLATE | 1 << CAL_Y_PLATE);
 }
 long charger_time(charger_t* charger){
 	short position = charger ->currentPlate;

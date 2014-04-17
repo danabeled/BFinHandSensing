@@ -13,7 +13,7 @@ short unsigned count = 0;
 double std_x;
 double std_y;
 double std_z;
-const double NUM_STD = 3;
+const double NUM_STD = 0.5;
 unsigned long sum_x = 0;
 unsigned long sum_y = 0;
 unsigned long sum_z = 0;
@@ -67,7 +67,6 @@ void calibrate(charger_t * pThis) {
 			//ignore these values
 			continue;
 		}
-		printf("cali: %lu %lu %lu\r\n", pThis->xTime, pThis->yTime, pThis->zTime);
 
 		// Calibration Procedure
 		switch (pThis->calibration_state) {
@@ -84,7 +83,7 @@ void calibrate(charger_t * pThis) {
 				dataset_z[count] = pThis->zTime;
 				count++;
 
-				printf("count: %d\r\n", count);
+				printf("cali: %lu %lu %lu %d\r\n", pThis->xTime, pThis->yTime, pThis->zTime, count);
 
 				if (count == MAX_COUNT) {
 
@@ -122,8 +121,9 @@ void calibrate(charger_t * pThis) {
 			
 				if(max_z < pThis->zTime){
 					max_z = pThis->zTime;
-					printf("Z current range: %d\r\n", max_z - pThis->baseline_z);
 				}
+
+				printf("Z current range: %d\r\n", max_z - pThis->baseline_z);
 
 				if (pThis->z_state == READY) {
 					pThis->calibration_state = CHARGING_X;
@@ -140,8 +140,10 @@ void calibrate(charger_t * pThis) {
 
 				if(max_x < pThis->xTime){
 					max_x = pThis->xTime;
-					printf("x current range: %d\r\n", max_x - pThis->baseline_x);
 				}
+
+				printf("x range: %d z range: %d\r\n", max_x - pThis->baseline_x,
+						max_z - pThis->baseline_z);
 
 				if (pThis->x_state == READY) {
 					pThis->calibration_state = CHARGING_Y;
@@ -158,8 +160,10 @@ void calibrate(charger_t * pThis) {
 
 				if(max_y < pThis->yTime){
 					max_y = pThis->yTime;
-					printf("y current range: %d\r\n", max_y - pThis->baseline_y);
 				}
+				printf("y range: %d x range: %d z range: %d\r\n", max_y - pThis->baseline_y,
+						max_x - pThis->baseline_x,
+						max_z - pThis->baseline_z);
 
 				if (pThis->y_state == READY) {
 					pThis->calibration_state = CAL_DONE;
