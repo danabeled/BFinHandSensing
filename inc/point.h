@@ -4,6 +4,7 @@
  		in queue
 	@author: pstephen
 	@created: March 21, 2014
+	@updated: Zhen Jiang, 04/01/2014
 **************************************************************************************/
 
 #ifndef POINT_H
@@ -16,7 +17,6 @@ typedef struct point{
 	unsigned int x_pos;
 	unsigned int y_pos;
 	unsigned int z_pos;
-
 	struct point * nextPoint;
 	struct point * prevPoint;
 } point_t;

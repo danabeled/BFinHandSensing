@@ -1,19 +1,30 @@
 /**************************************************************************************
-	@file: point.h
-	@brief: Point handles all data related to each hand position read, is contained 
- 		in queue
-	@author: pstephen
-	@created: March 21, 2014
+	@file: test.c
+	@brief: get test data from the data class
+	@author: Zhen Jiang
+	@created: April 1, 2014
 **************************************************************************************/
 
 #include "test_data.h"
 
 int test_count = 0;
 
+/**
+  * this function reset the data counter
+  * Paramters: void
+  *
+  * @return void
+  */
 void test_reset(){
 	test_count = 0;
 }
 
+/**
+  * get one test data our from data class
+  * Paramters:
+  *
+  * @return the test data
+  */
 int test_getData(){
 	if(data[test_count] == -1){
 		return -1;

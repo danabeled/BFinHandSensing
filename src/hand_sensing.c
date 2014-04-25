@@ -1,3 +1,10 @@
+/**************************************************************************************
+	@file: hand_sensing.c
+	@brief: main application class, contains the while(1)
+	@author: Zhen Jiang
+	@created: March 23, 2014
+	@updated: Zhen Jiang 04/01/2014
+**************************************************************************************/
 #include <stdio.h>
 #include "startup.h"
 #include "constant.h"
@@ -10,22 +17,27 @@
 #include "calibration.h"
 #include <sys/time.h>
 
+//result measurement variables
 struct timeval time_start, time_stop;
 struct timeval time_charge_begin, time_charge_end;
+
+//value after subtracted from baseline
 int diff_x = 0;
 int diff_y = 0;
 int diff_z = 0;
 
+//recalibration counter
 int negative_count = 0;
 #define NEGATIVE_MAX 20
-
 int pos_count = 0;
 
-double ratio = 1;
-
+//sensor cube
 charger_t charger;
+
+//circle on the LCD
 point_t point1;
 
+//
 void handSensing(){
 
 	queueHandler_init();
@@ -74,6 +86,7 @@ void handSensing(){
 		diff_y = charger.yTime - charger.baseline_y;
 		diff_z = charger.zTime - charger.baseline_z;
 
+		//recalibration detection
 		if(diff_x < -50 || diff_y < -50 || diff_z < -50){
 			negative_count++;
 			if(negative_count == NEGATIVE_MAX){
@@ -85,6 +98,7 @@ void handSensing(){
 			negative_count = 0;
 		}
 
+		//valid point
 		if((diff_x > RADIUS && diff_x <= charger.range_x )
 				&& (diff_y > RADIUS && diff_y <= charger.range_y)){
 			point1.x_pos = diff_x;

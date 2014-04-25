@@ -11,7 +11,7 @@
  *
  * @author:  Daniel Abel
  * @created: 03/21/14
- *
+ * @updated: Zhen Jiang, 04/01/2014
  *******************************************************************************/
   
 #ifndef _CHARGER_H_
@@ -28,22 +28,22 @@
 /** template attributes
  */
 typedef struct {
-	STATE x_state;
-	STATE y_state;
-	STATE z_state;
-	CAL_STATE_T calibration_state;
-	unsigned long baseline_x;
-	unsigned long baseline_y;
-	unsigned long baseline_z;
-	unsigned long range_x;
-	unsigned long range_y;
-	unsigned long range_z;
+	STATE x_state;//x plate state
+	STATE y_state;//y plate state
+	STATE z_state;//z plate state
+	CAL_STATE_T calibration_state;//charger calibration state
+	unsigned long baseline_x;//x plate time baseline
+	unsigned long baseline_y;//y plate time baseline
+	unsigned long baseline_z;//z plate time baseline
+	unsigned long range_x;//x plate time range
+	unsigned long range_y;//y plate time range
+	unsigned long range_z;//z plate time range
 	unsigned long xTime; /** time for the x plate to charge */
 	unsigned long yTime; /** time for the y plate to charge */
 	unsigned long zTime; /** time for the z plate to charge */
 	unsigned short newDataFlag; /** allows readers to know there is new position data **/
-	unsigned short currentPlate;
-	unsigned long total;
+	unsigned short currentPlate;//current charging plate
+	unsigned long total;//total number of charging
 } charger_t;
 
 /***************** Method Prototypes ****************************************/
@@ -56,35 +56,15 @@ typedef struct {
  */
 void charger_init(charger_t *pThis);
 
-/** starts the chargers polling loop **/
+/** charge the charge
+ *
+ * @param pThis  pointer to own object
+ *
+ * @return Zero on success, negative otherwise 
+ */
 int charger_run(charger_t *pThis);
 
 /** enable debug **/
 void charger_debug_enable();
 
-/**
- * Sets PORTF0 to input and enables interrupt
- */
-void gpio_setInput_PORTF0();
-/**
- * Sets PORTF1 to input and enables interrupt
- */
-void gpio_setInput_PORTF1();
-/**
- * Sets PORTF2 to input and enables interrupt
- */
-void gpio_setInput_PORTF2();
-
-/**
- * Sets PORTF0 to output and sets output to high
- */
-void gpio_setOutput_PORTF0();
-/**
- * Sets PORTF1 to output and sets output to high
- */
-void gpio_setOutput_PORTF1();
-/**
- * Sets PORTF2 to output and sets output to high
- */
-void gpio_setOutput_PORTF2();
  #endif

@@ -3,6 +3,7 @@
 	@breif: Point handles all data related to each hand position read
 	@author: pstephen
 	@created: March 21, 2014
+	@updated: Zhen Jiang, 04/01/2014
 ****************************************************************************/
 
 #include "point.h"

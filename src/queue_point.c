@@ -3,6 +3,7 @@
 	@breif: 
 	@author: pstephen
 	@created: March 21, 2014
+	@updated: Zhen Jiang, 04/01/2014
 ****************************************************************************/
 
 #include <stdlib.h>
@@ -53,7 +54,10 @@ point_t * queue_point_getPoint(queue_point_t *pThis){
 		pThis->queueSize--;
 	return temp;
 }
-		
+/**
+ @param queue to be printed
+ @return status
+*/		
 int queue_point_print(queue_point_t *pThis){
 	point_t *itr = pThis->firstElement;
 	while(itr != NULL){
@@ -64,6 +68,10 @@ int queue_point_print(queue_point_t *pThis){
 	return 1;
 }
 
+/**
+ @param queue to be cleared
+ @return status
+*/
 int queue_point_clear(queue_point_t *pThis) {
   point_t * itr = pThis->lastElement->prevPoint;
   pThis->queueSize = 0;

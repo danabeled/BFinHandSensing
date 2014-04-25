@@ -7,7 +7,7 @@
  *
  * @author:  Robin Yohannan
  * @created: 3/21/14
- *
+ * @updated: Zhen Jiang, 04/01/2014
  *******************************************************************************/
 
 #ifndef QUEUE_HANDLER_H
@@ -84,8 +84,22 @@ void setYRange(int yNum);
  */
 void setZRange(int zNum);
 
+/**
+ *
+ * display current status of the queuehandler
+ *
+ * @param void
+ * @return void
+ */
 void queueHandler_display(void);
 
+/**
+ *
+ * draw a test at the center of the LCD screen
+ *
+ * @param string, the text
+ * @return void
+ */
 void queueHanlder_drawTextAtCenter(char* string);
 
 #endif

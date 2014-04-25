@@ -1,33 +1,44 @@
+/**************************************************************************************
+	@file: calibration.c
+	@brief: finding the baseline and range value for each plate
+	@author: Zhen Jiang
+	@created: 04/01/2014
+	@updated: Zhen Jiang, Robin 04/8/2014
+**************************************************************************************/
 #include "calibration.h"
 #include "constant.h"
 #include "ssvep.h"
 
-#define CALIBRATION	10
-#define FUNCTION	11
+double average_x;//average of charge time for x plate
+double average_y;//average of charge time for y plate
+double average_z;//average of charge time for z plate
+short unsigned count = 0;//counter variable for finding baseline
+double std_x;//std of charge time for x plate
+double std_y;//std of charge time for y plate
+double std_z;//std of charge time for z plate
+const double NUM_STD = 0.5;// number of std included in the baseline
+unsigned long sum_x = 0;//sum of charge time for x plate during baseline calculation
+unsigned long sum_y = 0;//sum of charge time for y plate during baseline calculation
+unsigned long sum_z = 0;//sum of charge time for z plate during baseline calculation
 
-short unsigned state = CALIBRATION;
-double average_x;
-double average_y;
-double average_z;
-short unsigned count = 0;
-double std_x;
-double std_y;
-double std_z;
-const double NUM_STD = 0.5;
-unsigned long sum_x = 0;
-unsigned long sum_y = 0;
-unsigned long sum_z = 0;
+unsigned long max_x = 0;//max of charge time for x plate during calibrating x plate
+unsigned long max_y = 0;//max of charge time for y plate during calibrating y plate
+unsigned long max_z = 0;//max of charge time for z plate during calibrating z plate
 
-unsigned long max_x = 0;
-unsigned long max_y = 0;
-unsigned long max_z = 0;
-
+//max sample number for find baseline
 #define MAX_COUNT 300
-int dataset_x[MAX_COUNT];
-int dataset_y[MAX_COUNT];
-int dataset_z[MAX_COUNT];
+int dataset_x[MAX_COUNT];//x samples
+int dataset_y[MAX_COUNT];//y samples
+int dataset_z[MAX_COUNT];//z samples
 
+//sqrt function
 #define SQRT_MAGIC_F 0x5f3759df
+/**
+  * This is function finds the sqrt of a value
+  * Paramters: x, the input
+  *
+  * @return sqrt of the input
+  */
 double sqrt(const double x){
 	const float xhalf = 0.5f*x;
 	  union // get bits for floating value
@@ -39,6 +50,12 @@ double sqrt(const double x){
 	  u.i = SQRT_MAGIC_F - (u.i >> 1);  // gives initial guess y0
 	  return x*u.x*(1.5f - xhalf*u.x*u.x);// Newton step, repeating increases accuracy
 }
+/**
+  * This is function calculate the std of a set of data
+  * Paramters: dataset, the set of data; datalen, the number of sample; average, average of the data set
+  *
+  * @return std of the data set
+  */
 double calculateStd(int*dataset, int datalen, double average){
 	if(datalen == 0) return 0;
 	if(datalen == 1) return dataset[0];
@@ -52,6 +69,12 @@ double calculateStd(int*dataset, int datalen, double average){
 	return tmpStd;
 }
 
+/**
+  * This is function calibrate the charger
+  * Paramters: pThis, the charger
+  *
+  * @return void
+  */
 void calibrate(charger_t * pThis) {
 	printf("\r\n Entering Baseline Calibration \r\n");
 	queueHanlder_drawTextAtCenter("Finding baseline...");
@@ -200,6 +223,12 @@ void calibrate(charger_t * pThis) {
 	}
 }
 
+/**
+  * This is function find the baseline for a charger
+  * Paramters: pThis, the charger
+  *
+  * @return void
+  */
 void calibrate_baseline(charger_t* pThis){
 	count = 0;
 	sum_x = 0;

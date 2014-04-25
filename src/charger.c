@@ -9,7 +9,7 @@
  *
  * @author:  Daniel Abel
  * @created: 03/21/14
- *
+ * @updated: Zhen Jiang, 04/01/2014
  *******************************************************************************/
 
 #include "charger.h"
@@ -21,18 +21,10 @@
 #include "test_data.h"
 /***************** Private Defines *********************************************/
 //the following values are for the PORT F IMPLEMENTATION **FOR NOW**
-#define CHARGER_G_BITS 0x700
 
-#define PLATE_X 0
-#define PLATE_Y 1
-#define PLATE_Z 2
-
-#define pPORTIO_INEN *pPORTFIO_INEN
-#define pPORTIO_DIR *pPORTFIO_DIR
-#define pPORTIO_CLEAR *pPORTFIO_CLEAR
-#define pPORT_FER *pPORTF_FER
-#define pPORTIO *pPORTFIO
-
+#define PLATE_X 0//x plate
+#define PLATE_Y 1//y plate
+#define PLATE_Z 2//z plate
 
 #define ENABLE 1
 #define DISABLE 0

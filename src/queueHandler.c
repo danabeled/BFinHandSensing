@@ -7,7 +7,7 @@
  *
  * @author:  Robin Yohannan
  * @created: 3/21/14
- *
+ * @updated: Zhen Jiang, 04/01/2014
  *******************************************************************************/
 
 #include <stdio.h>
@@ -29,10 +29,10 @@
 /******************************************************************************
                                   GLOBALS
 *******************************************************************************/
-point_t * currPoint;
+point_t * currPoint;//current point on the LCD screen
 isrDisp_t isrDisp;
 fb_t frameBuffer;
-double xScale=1, yScale=1, zScale=1;
+double xScale=1, yScale=1, zScale=1;//default scale
 
 picotk_Color * pixelFrame[LCD_FRAMEHEIGHT][LCD_FRAMEWIDTH];
 
@@ -256,6 +256,13 @@ void queueHandler_pushPoint(point_t * pt) {
   queue_point_addPoint(&drawPointQueue, pt->x_pos, pt->y_pos, pt->z_pos);
 }
 
+/**
+ *
+ * display current status of the queuehandler
+ *
+ * @param void
+ * @return void
+ */
 void queueHandler_display(){
 	point_t * iter = drawPointQueue.firstElement;
 	int i = 0;
@@ -265,6 +272,13 @@ void queueHandler_display(){
 	}
 	printf("---------------\r\n");
 }
+/**
+ *
+ * draw a test at the center of the LCD screen
+ *
+ * @param string, the text
+ * @return void
+ */
 void queueHanlder_drawTextAtCenter(char* string){
 	picotk_DrawTextCentered(&picotk_font_8x13, &RIVER_BLUE, LCD_FRAMEHEIGHT/2,
 			LCD_FRAMEWIDTH/2, string);

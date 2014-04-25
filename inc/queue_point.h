@@ -3,6 +3,7 @@
 	@brief: queue handles all point objects in the form of a linked list
 	@author: pstephen
 	@created: March 21, 2014
+	@updated: Zhen Jiang, 04/01/2014
 **************************************************************************************/
 
 #ifndef QUEUE_H
