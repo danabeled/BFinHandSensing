@@ -108,9 +108,8 @@ void handSensing(){
 			queueHandler_draw();
 			//gettimeofday(&time_stop, NULL);
 			//printf("\r\ntime diff: %d\r\n", (int)time_stop.tv_usec - (int)time_start.tv_usec);
-			if(ratio > 0){
-				printf("In range");
-			}
+			printf("In range");
+
 		}else{
 			printf("Out range.");
 		}
