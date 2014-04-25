@@ -55,6 +55,11 @@ double calculateStd(int*dataset, int datalen, double average){
 void calibrate(charger_t * pThis) {
 	printf("\r\n Entering Baseline Calibration \r\n");
 	queueHanlder_drawTextAtCenter("Finding baseline...");
+	pThis->calibration_state = BASELINE;
+	pThis->z_state = NOT_READY;
+	pThis->y_state = NOT_READY;
+	pThis->x_state = NOT_READY;
+	count = 0;
 	while (1) {
 		// Reset the charger obj if charger_run has an error
 		if(ERROR == charger_run(pThis)){
@@ -64,6 +69,12 @@ void calibrate(charger_t * pThis) {
 		if(pThis->xTime > MAX_TIMER_VALUE ||
 				pThis->yTime > MAX_TIMER_VALUE ||
 				pThis->zTime > MAX_TIMER_VALUE){
+			//ignore these values
+			continue;
+		}
+		if(pThis->xTime == 0 ||
+				pThis->yTime == 0 ||
+				pThis->zTime == 0){
 			//ignore these values
 			continue;
 		}
@@ -110,6 +121,7 @@ void calibrate(charger_t * pThis) {
 					pThis->calibration_state = CHARGING_Z;
 					printf("\r\n Entering Z-Plate Calibration \r\n");
 					queueHanlder_drawTextAtCenter("Please calibrate Z-Plate...");
+					pThis->z_state = NOT_READY;
 				}
 				break;
 
@@ -129,6 +141,7 @@ void calibrate(charger_t * pThis) {
 					pThis->calibration_state = CHARGING_X;
 					printf("\r\n Entering X-Plate Calibration \r\n");
 					queueHanlder_drawTextAtCenter("Please calibrate X-Plate...");
+					pThis->x_state = NOT_READY;
 				}
 				break;
 
@@ -149,6 +162,7 @@ void calibrate(charger_t * pThis) {
 					pThis->calibration_state = CHARGING_Y;
 					printf("\r\n Entering Y-Plate Calibration \r\n");
 					queueHanlder_drawTextAtCenter("Please calibrate Y-Plate...");
+					pThis->y_state = NOT_READY;
 				}
 				break;
 

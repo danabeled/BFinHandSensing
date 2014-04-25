@@ -44,7 +44,7 @@ int debug = DISABLE;
 
 isrDisp_t pDispThis;
 
-#define MAX 5
+#define MAX 10
 long xPoints[MAX];
 int xcount = 1;
 long yPoints[MAX];
